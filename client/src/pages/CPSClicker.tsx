@@ -3,10 +3,13 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Home, RotateCcw } from "lucide-react";
 
+type TimeOption = 1 | 10 | 60;
+
 export default function CPSClicker() {
   const navigate = useNavigate();
   const [score, setScore] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [selectedTime, setSelectedTime] = useState<TimeOption>(10);
   const [timeLeft, setTimeLeft] = useState(10);
   const [cps, setCps] = useState(0);
   const [clicks, setClicks] = useState(0);
@@ -14,27 +17,30 @@ export default function CPSClicker() {
   useEffect(() => {
     if (isPlaying && timeLeft > 0) {
       const timer = setTimeout(() => {
-        setTimeLeft(timeLeft - 1);
+        setTimeLeft(prev => prev - 1);
       }, 1000);
       return () => clearTimeout(timer);
     } else if (timeLeft === 0 && isPlaying) {
       setIsPlaying(false);
-      const finalCPS = clicks / 10;
-      setCps(parseFloat(finalCPS.toFixed(2)));
+      setClicks(currentClicks => {
+        const finalCPS = currentClicks / selectedTime;
+        setCps(parseFloat(finalCPS.toFixed(2)));
+        return currentClicks;
+      });
     }
-  }, [isPlaying, timeLeft, clicks]);
+  }, [isPlaying, timeLeft, selectedTime]);
 
   const handleClick = useCallback(() => {
     if (isPlaying) {
-      setScore(score + 1);
-      setClicks(clicks + 1);
+      setScore(prev => prev + 1);
+      setClicks(prev => prev + 1);
     }
-  }, [isPlaying, score, clicks]);
+  }, [isPlaying]);
 
   const startGame = () => {
     setScore(0);
     setClicks(0);
-    setTimeLeft(10);
+    setTimeLeft(selectedTime);
     setCps(0);
     setIsPlaying(true);
   };
@@ -42,9 +48,15 @@ export default function CPSClicker() {
   const resetGame = () => {
     setScore(0);
     setClicks(0);
-    setTimeLeft(10);
+    setTimeLeft(selectedTime);
     setCps(0);
     setIsPlaying(false);
+  };
+
+  const getTimeLabel = (time: TimeOption) => {
+    if (time === 1) return "1 Second";
+    if (time === 60) return "1 Minute";
+    return "10 Seconds";
   };
 
   return (
@@ -87,14 +99,38 @@ export default function CPSClicker() {
             </div>
           </div>
 
-          {!isPlaying && timeLeft === 10 && (
-            <Button
-              onClick={startGame}
-              size="lg"
-              className="w-full text-xl py-6 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600"
-            >
-              Start Game
-            </Button>
+          {!isPlaying && timeLeft === selectedTime && (
+            <>
+              <div className="mb-6">
+                <div className="text-sm md:text-base text-white/80 mb-3 text-center">Select Time</div>
+                <div className="grid grid-cols-3 gap-2">
+                  {([1, 10, 60] as TimeOption[]).map((time) => (
+                    <Button
+                      key={time}
+                      onClick={() => {
+                        setSelectedTime(time);
+                        setTimeLeft(time);
+                      }}
+                      variant={selectedTime === time ? "default" : "outline"}
+                      className={`text-sm md:text-base py-3 ${
+                        selectedTime === time
+                          ? "bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white"
+                          : "bg-white/10 text-white border-white/30 hover:bg-white/20"
+                      }`}
+                    >
+                      {getTimeLabel(time)}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+              <Button
+                onClick={startGame}
+                size="lg"
+                className="w-full text-xl py-6 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600"
+              >
+                Start Game
+              </Button>
+            </>
           )}
 
           {isPlaying && (
