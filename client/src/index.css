@@ -55,3 +55,35 @@ canvas {
 video {
   display: block;
 }
+
+@keyframes speedline {
+  0% {
+    opacity: 0;
+    transform: translateX(0) scaleX(0);
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(-30px) scaleX(1.5);
+  }
+}
+
+@keyframes carBounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-2px);
+  }
+}
+
+@keyframes engineGlow {
+  0%, 100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+}
