@@ -39,7 +39,7 @@ export default function RaceTrack3D({ playerProgress, opponent1Progress = 0, opp
     <div className="w-full h-full">
       <Canvas shadows dpr={[1, 1]}>
         <Suspense fallback={null}>
-          <PerspectiveCamera makeDefault position={[0, 4, 15]} fov={70} />
+          <PerspectiveCamera makeDefault position={[0, 8, 25]} fov={65} />
           
           {/* Optimized Lighting */}
           <directionalLight 
