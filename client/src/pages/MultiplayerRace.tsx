@@ -333,19 +333,8 @@ export default function MultiplayerRace() {
               )}
 
               {gameState.isStarted && (
-                <div className="flex flex-col gap-4 h-full w-full">
-                  <div className="bg-gradient-to-b from-sky-600 via-blue-700 to-slate-800 rounded-lg overflow-hidden shadow-2xl border-4 border-yellow-400 h-3/5">
-                    <Race2D 
-                      playerProgress={gameState.players.find(p => p.id === myPlayerId)?.progress || 0}
-                      opponent1Progress={gameState.players[1]?.progress || 0}
-                      opponent2Progress={gameState.players[2]?.progress || 0}
-                      trackType={selectedTrack}
-                      trackShape="curved"
-                      playerCount={gameState.players.length}
-                    />
-                  </div>
-
-                  <div className="bg-white/5 rounded p-3 font-mono text-lg leading-relaxed line-clamp-4">
+                <div className="flex flex-col gap-3 h-full w-full">
+                  <div className="bg-white/5 rounded p-2 font-mono text-base leading-relaxed line-clamp-2">
                     {gameState.targetText.split("").map((char, index) => {
                       let className = "text-white/50";
                       if (index < userInput.length) {
@@ -364,25 +353,25 @@ export default function MultiplayerRace() {
                     type="text"
                     value={userInput}
                     onChange={handleInputChange}
-                    className="w-full text-lg py-3 px-4 bg-white/90 text-black font-bold text-center"
+                    className="w-full text-lg py-3 px-4 bg-white/90 text-black font-bold"
                     placeholder="Start typing here..."
                     disabled={!!gameState.winner}
                     autoFocus
                   />
 
-                  <div className="space-y-3 flex-1 overflow-hidden">
+                  <div className="space-y-2 flex-1 overflow-y-auto">
                     {gameState.players.map((player) => (
-                      <div key={player.id} className="relative h-20 bg-white/5 rounded overflow-hidden text-base font-bold">
-                        <div className="absolute left-3 top-1/2 -translate-y-1/2 z-10 truncate max-w-[40%]">
+                      <div key={player.id} className="relative h-16 bg-white/5 rounded overflow-hidden text-sm font-bold">
+                        <div className="absolute left-2 top-1/2 -translate-y-1/2 z-10 truncate max-w-[50%]">
                           {player.name}
                         </div>
                         <div
-                          className="absolute top-1/2 -translate-y-1/2 transition-all duration-300 text-4xl"
-                          style={{ left: `calc(${player.progress}% - 25px)` }}
+                          className="absolute top-1/2 -translate-y-1/2 transition-all duration-300 text-3xl"
+                          style={{ left: `calc(${player.progress}% - 20px)` }}
                         >
                           {CAR_EMOJIS[player.carIndex]}
                         </div>
-                        <div className="absolute right-0 top-0 w-2 h-full bg-yellow-400" />
+                        <div className="absolute right-0 top-0 w-1 h-full bg-yellow-400" />
                       </div>
                     ))}
                   </div>
