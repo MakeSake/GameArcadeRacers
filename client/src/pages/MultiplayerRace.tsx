@@ -266,7 +266,7 @@ export default function MultiplayerRace() {
           </p>
         </div>
 
-        <div className={`flex flex-col items-center flex-1 ${gameState.isStarted ? 'justify-center px-2' : 'justify-start px-2 overflow-y-auto'}`}>
+        <div className={`flex flex-col items-center flex-1 ${gameState.isStarted ? 'justify-start px-2' : 'justify-start px-2 overflow-y-auto'}`}>
           <div className={`bg-white/10 backdrop-blur-md rounded-lg shadow-2xl border border-white/20 ${gameState.isStarted ? 'h-full w-full max-w-full p-4' : 'w-full max-w-4xl p-4 md:p-6'}`}>
           {!isConnected ? (
             <div className="text-center space-y-4">
