@@ -83,7 +83,6 @@ export default function CPSClicker() {
       <video
         autoPlay
         loop
-        muted
         playsInline
         key={bgVideo}
         className="absolute inset-0 w-full h-full object-cover"
