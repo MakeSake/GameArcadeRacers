@@ -39,6 +39,11 @@ export default function TypingRace() {
   const [device, setDevice] = useState(detectDevice());
   const inputRef = useRef<HTMLInputElement>(null);
 
+  const getRandomWideVideo = () => {
+    const videoIndex = Math.floor(Math.random() * 7) + 1;
+    return `/videos/wide_${videoIndex}.mp4`;
+  };
+
   useEffect(() => {
     if (targetText && isPlaying) {
       const correctChars = userInput.split("").filter((char, index) => char === targetText[index]).length;
@@ -143,6 +148,15 @@ export default function TypingRace() {
 
   return (
     <div className="relative w-full h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 overflow-hidden">
+      <video
+        autoPlay
+        loop
+        muted
+        className="absolute inset-0 w-full h-full object-cover opacity-20 -z-10"
+      >
+        <source src={getRandomWideVideo()} type="video/mp4" />
+      </video>
+      
       {/* Animated background */}
       <div className="absolute inset-0 opacity-10">
         <div className="absolute top-0 left-0 w-96 h-96 bg-purple-600 rounded-full filter blur-3xl animate-blob" />

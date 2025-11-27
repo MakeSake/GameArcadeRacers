@@ -153,8 +153,21 @@ export default function MultiplayerRace() {
   const myPlayer = gameState.players.find((p) => p.id === myPlayerId);
   const canStart = gameState.players.length >= 1 && !gameState.isStarted;
 
+  const getRandomWideVideo = () => {
+    const videoIndex = Math.floor(Math.random() * 7) + 1;
+    return `/videos/wide_${videoIndex}.mp4`;
+  };
+
   return (
     <div className="relative w-full h-screen bg-gradient-to-br from-green-900 via-emerald-900 to-green-800 overflow-hidden">
+      <video
+        autoPlay
+        loop
+        muted
+        className="absolute inset-0 w-full h-full object-cover opacity-20 -z-10"
+      >
+        <source src={getRandomWideVideo()} type="video/mp4" />
+      </video>
       {showWinVideo && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90">
           <div className="relative w-full h-full flex items-center justify-center">

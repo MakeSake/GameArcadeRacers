@@ -72,8 +72,21 @@ export default function CPSClicker() {
     return "10 Seconds";
   };
 
+  const getRandomWideVideo = () => {
+    const videoIndex = Math.floor(Math.random() * 7) + 1;
+    return `/videos/wide_${videoIndex}.mp4`;
+  };
+
   return (
     <div className="relative w-full h-screen bg-gradient-to-br from-purple-900 via-pink-900 to-purple-800 overflow-hidden">
+      <video
+        autoPlay
+        loop
+        muted
+        className="absolute inset-0 w-full h-full object-cover opacity-20 -z-10"
+      >
+        <source src={getRandomWideVideo()} type="video/mp4" />
+      </video>
       <div className="absolute top-4 left-4">
         <Button
           onClick={() => navigate("/")}
