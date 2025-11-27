@@ -209,13 +209,13 @@ export default function TypingRace() {
       </div>
 
       <div className="flex flex-col h-full p-4 md:p-8 text-white relative z-10">
-        <div className="text-center mb-6">
-          <h1 className="game-title mb-2 flex items-center justify-center gap-3">
-            <Zap className="text-yellow-400 animate-bounce" />
+        <div className="text-center mb-3">
+          <h1 className="game-title mb-1 flex items-center justify-center gap-2 text-2xl md:text-3xl">
+            <Zap className="text-yellow-400 animate-bounce h-5 w-5" />
             TURBO CHAMPIONS
-            <Zap className="text-yellow-400 animate-bounce" />
+            <Zap className="text-yellow-400 animate-bounce h-5 w-5" />
           </h1>
-          <p className="game-subtitle text-lg md:text-xl drop-shadow-md text-yellow-300">
+          <p className="game-subtitle text-xs md:text-sm drop-shadow-md text-yellow-300">
             🏁 TYPE FAST! BEAT THE AI! 🏁
           </p>
         </div>
