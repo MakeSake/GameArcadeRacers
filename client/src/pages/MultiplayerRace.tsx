@@ -416,19 +416,19 @@ export default function MultiplayerRace() {
               )}
 
               {gameState.winner && (
-                <div className="flex flex-col items-center justify-center h-full w-full space-y-4 overflow-y-auto p-2">
-                  <Trophy className="h-20 w-20 text-yellow-400" />
+                <div className="flex flex-col items-center justify-start h-full w-full space-y-2 overflow-y-auto p-1">
+                  <Trophy className="h-16 w-16 text-yellow-400" />
                   <div className="text-center">
-                    <h2 className="text-4xl font-bold text-yellow-300">
+                    <h2 className="text-2xl font-bold text-yellow-300">
                       {gameState.winner.name}
                     </h2>
-                    <p className="text-3xl font-bold text-white">
+                    <p className="text-xl font-bold text-white">
                       Wins! {CAR_EMOJIS[gameState.winner.carIndex]}
                     </p>
                   </div>
 
-                  <div className="w-full max-w-md space-y-2">
-                    <h3 className="text-xl font-bold text-center text-yellow-300">RESULTS</h3>
+                  <div className="w-full max-w-md space-y-1">
+                    <h3 className="text-lg font-bold text-center text-yellow-300">RESULTS</h3>
                     {gameState.players
                       .sort((a, b) => b.progress - a.progress)
                       .map((player, index) => {
@@ -440,7 +440,7 @@ export default function MultiplayerRace() {
                         return (
                           <div
                             key={player.id}
-                            className={`p-3 rounded-lg font-bold text-sm ${
+                            className={`p-2 rounded-lg font-bold text-xs ${
                               index === 0
                                 ? 'bg-yellow-500/30 border-2 border-yellow-400'
                                 : index === 1
@@ -451,16 +451,16 @@ export default function MultiplayerRace() {
                             }`}
                           >
                             <div className="flex items-center justify-between">
-                              <div className="flex items-center gap-2">
-                                <span className="text-lg">{index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `#${index + 1}`}</span>
-                                <span className="text-xl">{CAR_EMOJIS[player.carIndex]}</span>
+                              <div className="flex items-center gap-1">
+                                <span className="text-sm">{index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `#${index + 1}`}</span>
+                                <span className="text-lg">{CAR_EMOJIS[player.carIndex]}</span>
                                 <div>
-                                  <p className="text-white">{player.name}</p>
+                                  <p className="text-white text-xs">{player.name}</p>
                                   <p className="text-xs text-white/60">{Math.round(player.progress)}%</p>
                                 </div>
                               </div>
                               <div className="text-right">
-                                <p className="text-lg font-bold text-yellow-300">{isNaN(wpm) ? '0' : wpm} WPM</p>
+                                <p className="text-sm font-bold text-yellow-300">{isNaN(wpm) ? '0' : wpm} WPM</p>
                               </div>
                             </div>
                           </div>
@@ -470,8 +470,8 @@ export default function MultiplayerRace() {
 
                   <Button
                     onClick={resetGame}
-                    size="lg"
-                    className="game-button text-lg py-4 px-10 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 shadow-lg hover:shadow-cyan-500/50 mt-2"
+                    size="sm"
+                    className="game-button text-sm py-2 px-8 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 shadow-lg hover:shadow-cyan-500/50 mt-1"
                   >
                     🔄 PLAY AGAIN
                   </Button>
