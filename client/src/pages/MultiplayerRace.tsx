@@ -164,7 +164,7 @@ export default function MultiplayerRace() {
         loop
         muted
         key={bgVideo}
-        className="absolute inset-0 w-full h-full object-cover opacity-50 -z-10"
+        className="absolute inset-0 w-full h-full object-cover opacity-75 -z-10"
       >
         <source src={bgVideo} type="video/mp4" />
       </video>
