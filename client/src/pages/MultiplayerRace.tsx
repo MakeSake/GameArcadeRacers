@@ -103,11 +103,10 @@ export default function MultiplayerRace() {
           ...prev,
           winner,
         }));
-        // Mute background video when showing win video
+        // Mute background video when winner is shown
         if (videoRef.current) {
           videoRef.current.volume = 0;
         }
-        setShowWinVideo(true);
         setWinnerCarIndex(winner.carIndex);
       }
     });
@@ -162,7 +161,6 @@ export default function MultiplayerRace() {
     if (socket) {
       socket.emit("resetGame");
       setUserInput("");
-      setShowWinVideo(false);
       // Restore background video volume
       if (videoRef.current) {
         videoRef.current.volume = 0.8;
