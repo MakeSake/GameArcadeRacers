@@ -1,8 +1,9 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef, Suspense } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Home, RotateCcw, Trophy } from "lucide-react";
+import RaceTrack3D from "@/components/RaceTrack3D";
 
 const SAMPLE_TEXTS = [
   "The quick brown fox jumps over the lazy dog and runs through the forest.",
@@ -190,59 +191,13 @@ export default function TypingRace() {
                 autoFocus
               />
 
-              <div className="mt-6 relative h-48 bg-gradient-to-b from-gray-800 via-gray-700 to-gray-600 rounded-lg overflow-hidden shadow-2xl border-4 border-yellow-400">
-                <div className="absolute inset-0 bg-[repeating-linear-gradient(90deg,transparent,transparent_50px,rgba(255,255,255,0.05)_50px,rgba(255,255,255,0.05)_100px)]" />
-                
-                <div className="absolute top-1/2 left-0 right-0 h-1 bg-white/20" style={{ transform: 'translateY(-50%)' }} />
-                <div className="absolute top-1/2 left-0 right-0 h-0.5 bg-yellow-400/40" style={{ transform: 'translateY(-50%)', top: 'calc(50% - 20px)' }} />
-                <div className="absolute top-1/2 left-0 right-0 h-0.5 bg-yellow-400/40" style={{ transform: 'translateY(-50%)', top: 'calc(50% + 20px)' }} />
-                
-                <div className="absolute right-4 top-1/2 -translate-y-1/2 text-6xl opacity-20">🏁</div>
-                
-                <div
-                  className="absolute top-1/2 -translate-y-1/2 transition-all duration-500 ease-out"
-                  style={{ 
-                    left: `calc(${Math.min(progress * 0.85, 85)}% + 20px)`,
-                    transform: `translateY(-50%) ${progress > 0 ? `rotate(${Math.min(progress * 0.1, 5)}deg)` : 'rotate(0deg)'}`,
-                  }}
-                >
-                  <div className="relative">
-                    {progress > 0 && (
-                      <div className="absolute -left-12 top-1/2 -translate-y-1/2 flex gap-1 opacity-60">
-                        <div className="w-8 h-1 bg-gradient-to-r from-transparent to-blue-400" style={{ animation: 'speedline 0.8s ease-out infinite' }} />
-                        <div className="w-6 h-0.5 bg-gradient-to-r from-transparent to-cyan-400" style={{ animation: 'speedline 0.8s ease-out infinite', animationDelay: '0.1s' }} />
-                        <div className="w-4 h-0.5 bg-gradient-to-r from-transparent to-white" style={{ animation: 'speedline 0.8s ease-out infinite', animationDelay: '0.2s' }} />
-                      </div>
-                    )}
-                    
-                    <div className="relative">
-                      <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-16 h-4 bg-black/40 rounded-full blur-md" 
-                           style={{ transform: `translateX(-50%) scale(${1 + progress * 0.003})` }} />
-                      
-                      <div style={{ transform: `scale(${1 + progress * 0.005})` }}>
-                        <div className="text-5xl filter drop-shadow-2xl" 
-                             style={{ 
-                               filter: progress > 50 ? 'drop-shadow(0 0 8px rgba(59, 130, 246, 0.8))' : 'drop-shadow(0 4px 8px rgba(0,0,0,0.5))',
-                               animation: progress > 0 ? 'carBounce 0.3s ease-in-out infinite' : 'none'
-                             }}>
-                          🏎️
-                        </div>
-                      </div>
-                      
-                      {progress > 50 && (
-                        <div className="absolute -left-2 top-1/2 -translate-y-1/2 w-2 h-2 bg-orange-400 rounded-full blur-sm" 
-                             style={{ animation: 'engineGlow 0.4s ease-in-out infinite' }} />
-                      )}
-                      
-                      {progress > 30 && (
-                        <div className="absolute -bottom-1 left-0 text-xs animate-bounce">💨</div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="absolute bottom-2 left-2 text-xs text-white/60 font-mono">
-                  {Math.round(progress)}%
+              {/* 3D Racing Scene */}
+              <div className="mt-6 relative w-full h-96 bg-gradient-to-b from-sky-400 to-blue-600 rounded-lg overflow-hidden shadow-2xl border-4 border-yellow-400">
+                <Suspense fallback={<div className="w-full h-full flex items-center justify-center text-white">Loading Race Track...</div>}>
+                  <RaceTrack3D progress={progress} />
+                </Suspense>
+                <div className="absolute bottom-2 left-2 text-xs text-white font-mono bg-black/50 px-2 py-1 rounded">
+                  Progress: {Math.round(progress)}% | Speed: {Math.round(progress * 2)} km/h
                 </div>
               </div>
             </div>
