@@ -10,129 +10,52 @@ interface Race2DProps {
   playerCount?: number;
 }
 
-const TRACK_COLORS = {
-  asphalt: { road: '#1a1a1a', center: '#ffff00', lane: '#ffffff', barrier: '#ff0000', background: '#87ceeb' },
-  desert: { road: '#c4915d', center: '#ffffff', lane: '#ffaa00', barrier: '#ff0000', background: '#f4e4c1' },
-  'night-city': { road: '#0a0a2e', center: '#00ffff', lane: '#ff00ff', barrier: '#ff0080', background: '#1a1a3e' },
-  mountain: { road: '#4a4a4a', center: '#ffff00', lane: '#ffffff', barrier: '#ff0000', background: '#8b7d9e' },
+const TRACK_WIDTH = 400;
+const TRACK_HEIGHT = 600;
+
+const TRACK_SHAPES = {
+  straight: 'straight',
+  curved: 'curved',
+  circle: 'circle',
 };
 
-function drawInfinityLoop(ctx: CanvasRenderingContext2D, width: number, height: number, playerCount: number = 3) {
-  const centerX = width / 2;
-  const centerY = height / 2;
-  
-  // Determine lane width and count based on player count
-  const laneCount = Math.max(3, Math.min(playerCount, 6));
-  const roadWidth = Math.min(280, 80 + laneCount * 20);
-  const laneWidth = roadWidth / laneCount;
-  
-  // Draw infinity loop path - figure-8 shape
-  const amplitude = height * 0.35;
-  const frequency = 0.01;
-  
-  // Create path for outer border
-  const outerPath = new Path2D();
-  const innerPath = new Path2D();
-  
-  // Draw two connected circles for infinity loop
-  const leftCircleX = centerX - 80;
-  const rightCircleX = centerX + 80;
-  const radius = 100;
-  
-  // Outer track (wider)
-  ctx.fillStyle = '#333333';
-  ctx.beginPath();
-  ctx.arc(leftCircleX, centerY, radius + roadWidth/2, 0, Math.PI * 2);
-  ctx.arc(rightCircleX, centerY, radius + roadWidth/2, 0, Math.PI * 2);
-  ctx.fill();
-  
-  // Inner track
-  ctx.fillStyle = '#000000';
-  ctx.beginPath();
-  ctx.arc(leftCircleX, centerY, radius - roadWidth/2, 0, Math.PI * 2);
-  ctx.arc(rightCircleX, centerY, radius - roadWidth/2, 0, Math.PI * 2);
-  ctx.fill();
-}
+const TRACK_COLORS = {
+  asphalt: { road: '#0a0a0a', center: '#ffff00', lane: '#ffffff', barrier: '#ff0000' },
+  desert: { road: '#d4a574', center: '#ffffff', lane: '#ffaa00', barrier: '#c4915d' },
+  'night-city': { road: '#0a0a0a', center: '#00ffff', lane: '#ff00ff', barrier: '#ff0080' },
+  mountain: { road: '#5a5a5a', center: '#ffff00', lane: '#ffffff', barrier: '#888888' },
+};
 
-function drawRedWhiteBarrier(ctx: CanvasRenderingContext2D, width: number, height: number) {
-  const centerX = width / 2;
-  const centerY = height / 2;
-  const leftCircleX = centerX - 80;
-  const rightCircleX = centerX + 80;
-  const radius = 100;
-  const barWidth = 140;
-  
-  // Red and white striped outer barriers
-  ctx.strokeStyle = '#ff0000';
-  ctx.lineWidth = 8;
-  
-  // Draw striped pattern for outer barriers
-  for (let i = 0; i < 2; i++) {
-    const x = (i === 0 ? leftCircleX : rightCircleX);
-    const outerRadius = radius + barWidth / 2 + 5;
-    
-    // Dashed circle for outer barrier
-    ctx.setLineDash([8, 8]);
-    ctx.beginPath();
-    ctx.arc(x, centerY, outerRadius, 0, Math.PI * 2);
-    ctx.stroke();
-  }
-  
-  ctx.setLineDash([]);
-}
-
-function drawLaneMarkers(ctx: CanvasRenderingContext2D, width: number, height: number, playerCount: number = 3, progress: number = 0) {
-  const centerX = width / 2;
-  const centerY = height / 2;
-  const leftCircleX = centerX - 80;
-  const rightCircleX = centerX + 80;
-  const radius = 100;
-  
-  const laneCount = Math.max(3, Math.min(playerCount, 6));
-  const roadWidth = Math.min(280, 80 + laneCount * 20);
-  
-  // Draw lane dividers as dashed lines
-  for (let i = 1; i < laneCount; i++) {
-    const offsetX = roadWidth / 2 - (roadWidth / laneCount) * i;
-    
-    ctx.strokeStyle = '#ffff00';
-    ctx.lineWidth = 2;
-    ctx.setLineDash([10, 15]);
-    ctx.lineDashOffset = -progress;
-    
-    // Draw lane dividers on both circles
-    for (let circleIdx = 0; circleIdx < 2; circleIdx++) {
-      const x = circleIdx === 0 ? leftCircleX : rightCircleX;
-      
-      // Vertical lane dividers
-      ctx.beginPath();
-      ctx.moveTo(x + offsetX, centerY - radius);
-      ctx.lineTo(x + offsetX, centerY + radius);
-      ctx.stroke();
-    }
-  }
-  
-  ctx.setLineDash([]);
-}
-
-function drawCheckeredFinishLine(ctx: CanvasRenderingContext2D, x: number, y: number, width: number, height: number) {
-  const checkSize = 8;
-  
-  for (let i = 0; i < width / checkSize; i++) {
-    for (let j = 0; j < height / checkSize; j++) {
-      if ((i + j) % 2 === 0) {
-        ctx.fillStyle = '#ffffff';
-      } else {
-        ctx.fillStyle = '#000000';
-      }
-      ctx.fillRect(x + i * checkSize, y + j * checkSize, checkSize, checkSize);
-    }
-  }
-}
-
-export default function Race2D({ playerProgress, opponent1Progress, opponent2Progress, trackType, trackShape = 'curved', playerCount = 3 }: Race2DProps) {
+export default function Race2D({ playerProgress, opponent1Progress, opponent2Progress, trackType, trackShape = 'straight', playerCount = 3 }: Race2DProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const colors = TRACK_COLORS[trackType];
+
+  const drawTrack = (ctx: CanvasRenderingContext2D, shape: string) => {
+    if (shape === 'curved') {
+      // Draw curved road
+      ctx.fillStyle = colors.road;
+      ctx.beginPath();
+      ctx.moveTo(50, 0);
+      ctx.quadraticCurveTo(200, TRACK_HEIGHT / 2, 350, TRACK_HEIGHT);
+      ctx.lineTo(350, TRACK_HEIGHT);
+      ctx.quadraticCurveTo(200, TRACK_HEIGHT / 2, 50, 0);
+      ctx.fill();
+    } else if (shape === 'circle') {
+      // Draw circular track
+      ctx.fillStyle = colors.road;
+      ctx.beginPath();
+      ctx.arc(TRACK_WIDTH / 2, TRACK_HEIGHT / 2, 120, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = trackType === 'night-city' ? '#0a0a2e' : '#87ceeb';
+      ctx.beginPath();
+      ctx.arc(TRACK_WIDTH / 2, TRACK_HEIGHT / 2, 80, 0, Math.PI * 2);
+      ctx.fill();
+    } else {
+      // Straight road (default)
+      ctx.fillStyle = colors.road;
+      ctx.fillRect(50, 0, 300, TRACK_HEIGHT);
+    }
+  };
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -141,81 +64,155 @@ export default function Race2D({ playerProgress, opponent1Progress, opponent2Pro
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    const width = canvas.width;
-    const height = canvas.height;
+    // Clear canvas
+    ctx.fillStyle = trackType === 'night-city' ? '#0a0a2e' : '#87ceeb';
+    ctx.fillRect(0, 0, TRACK_WIDTH, TRACK_HEIGHT);
 
-    // Clear canvas with background color
-    ctx.fillStyle = colors.background;
-    ctx.fillRect(0, 0, width, height);
+    // Draw road
+    drawTrack(ctx, trackShape);
 
-    // Draw infinity loop track
-    drawInfinityLoop(ctx, width, height, playerCount);
-    drawRedWhiteBarrier(ctx, width, height);
-    drawLaneMarkers(ctx, width, height, playerCount, playerProgress * 2);
+    // Draw lane dividers (animated)
+    ctx.strokeStyle = colors.center;
+    ctx.lineWidth = 3;
+    ctx.setLineDash([20, 30]);
+    ctx.lineDashOffset = -playerProgress * 2;
+    ctx.beginPath();
+    ctx.moveTo(TRACK_WIDTH / 2, 0);
+    ctx.lineTo(TRACK_WIDTH / 2, TRACK_HEIGHT);
+    ctx.stroke();
+    ctx.setLineDash([]);
 
-    // Draw finish line at top
-    ctx.fillStyle = '#00dd00';
-    ctx.fillRect(width / 2 - 60, 15, 120, 15);
-    drawCheckeredFinishLine(ctx, width / 2 - 60, 15, 120, 15);
+    // Draw left lane marker
+    ctx.strokeStyle = colors.lane;
+    ctx.lineWidth = 2;
+    ctx.setLineDash([15, 25]);
+    ctx.lineDashOffset = -playerProgress * 2;
+    ctx.beginPath();
+    ctx.moveTo(120, 0);
+    ctx.lineTo(120, TRACK_HEIGHT);
+    ctx.stroke();
 
-    // Draw start line at bottom
-    ctx.fillStyle = '#ffaa00';
-    ctx.fillRect(width / 2 - 60, height - 30, 120, 15);
+    // Draw right lane marker
+    ctx.beginPath();
+    ctx.moveTo(280, 0);
+    ctx.lineTo(280, TRACK_HEIGHT);
+    ctx.stroke();
+    ctx.setLineDash([]);
 
-    // Draw time/score display
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
-    ctx.font = 'bold 16px Arial';
-    ctx.textAlign = 'left';
-    ctx.fillText('RE B', 20, 25);
-    ctx.font = 'bold 20px Arial';
-    ctx.fillText('0:00', 20, 50);
+    // Draw barriers
+    ctx.fillStyle = colors.barrier;
+    ctx.fillRect(40, 0, 10, TRACK_HEIGHT); // Left
+    ctx.fillRect(350, 0, 10, TRACK_HEIGHT); // Right
 
-    // Draw progress percentage for each player
-    ctx.font = 'bold 14px Arial';
-    ctx.fillStyle = '#ffff00';
-    ctx.textAlign = 'center';
-    ctx.fillText(`${Math.round(playerProgress)}%`, width / 2 - 80, 30);
-    ctx.fillStyle = '#ff0000';
-    ctx.fillText(`${Math.round(opponent1Progress)}%`, width / 2, 30);
+    // Draw finish line
     ctx.fillStyle = '#00ff00';
-    ctx.fillText(`${Math.round(opponent2Progress)}%`, width / 2 + 80, 30);
+    ctx.fillRect(50, 100, 300, 8);
+    ctx.fillStyle = '#ffffff';
+    for (let i = 0; i < 12; i++) {
+      if (i % 2 === 0) {
+        ctx.fillRect(50 + i * 25, 100, 12, 8);
+      }
+    }
 
-    // Draw cars on the track as colored squares
-    const drawCar = (progress: number, laneIndex: number, color: string) => {
-      const centerX = width / 2;
-      const centerY = height / 2;
-      const leftCircleX = centerX - 80;
-      const radius = 100;
+    // Draw start line
+    ctx.fillStyle = '#ffaa00';
+    ctx.fillRect(50, TRACK_HEIGHT - 100, 300, 6);
+
+    // Draw cars as attractive 2D sprites
+    const drawCar = (progress: number, lane: number, color: string, name: string) => {
+      const position = (progress / 100) * (TRACK_HEIGHT - 200) + 150;
       
-      // Calculate position along the circular path
-      const angle = (progress / 100) * Math.PI * 2;
-      const x = leftCircleX + Math.cos(angle) * radius;
-      const y = centerY + Math.sin(angle) * radius;
-      
-      // Draw car as colored square
-      const carSize = 18;
+      // Car body
       ctx.fillStyle = color;
-      ctx.fillRect(x - carSize / 2, y - carSize / 2, carSize, carSize);
+      ctx.fillRect(lane - 15, position - 20, 30, 40);
       
-      // Add border
-      ctx.strokeStyle = '#ffffff';
-      ctx.lineWidth = 2;
-      ctx.strokeRect(x - carSize / 2, y - carSize / 2, carSize, carSize);
+      // Car cabin
+      ctx.fillStyle = '#333333';
+      ctx.fillRect(lane - 12, position - 15, 24, 20);
+      
+      // Windshield
+      ctx.fillStyle = '#4a90e2';
+      ctx.globalAlpha = 0.6;
+      ctx.fillRect(lane - 10, position - 12, 20, 8);
+      ctx.globalAlpha = 1;
+      
+      // Wheels
+      ctx.fillStyle = '#111111';
+      ctx.beginPath();
+      ctx.arc(lane - 8, position - 5, 4, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(lane + 8, position - 5, 4, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(lane - 8, position + 15, 4, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(lane + 8, position + 15, 4, 0, Math.PI * 2);
+      ctx.fill();
+      
+      // Headlights
+      ctx.fillStyle = '#ffff99';
+      ctx.beginPath();
+      ctx.arc(lane - 6, position - 22, 3, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(lane + 6, position - 22, 3, 0, Math.PI * 2);
+      ctx.fill();
+      
+      // Speed effect glow
+      if (progress > 30) {
+        ctx.fillStyle = color;
+        ctx.globalAlpha = 0.3;
+        ctx.beginPath();
+        ctx.arc(lane, position + 25, 15, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.globalAlpha = 1;
+      }
+
+      // Car label
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 10px Arial';
+      ctx.textAlign = 'center';
+      ctx.fillText(name, lane, position - 35);
     };
 
-    // Draw cars
-    drawCar(playerProgress, 0, '#ffff00');
-    drawCar(opponent1Progress, 1, '#ff0000');
-    drawCar(opponent2Progress, 2, '#00ff00');
+    // Draw player car (center lane)
+    drawCar(playerProgress, TRACK_WIDTH / 2, '#ff0000', 'YOU');
 
-  }, [playerProgress, opponent1Progress, opponent2Progress, trackType, colors, playerCount]);
+    // Draw opponent 1 (left lane)
+    drawCar(opponent1Progress, 120, '#0066ff', 'OPP1');
+
+    // Draw opponent 2 (right lane)
+    drawCar(opponent2Progress, 280, '#ffff00', 'OPP2');
+
+    // Draw progress percentage above cars
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+    ctx.font = 'bold 12px Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText(`${Math.round(playerProgress)}%`, TRACK_WIDTH / 2, 30);
+    ctx.fillText(`${Math.round(opponent1Progress)}%`, 120, 30);
+    ctx.fillText(`${Math.round(opponent2Progress)}%`, 280, 30);
+
+    // Draw track name in corner
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+    ctx.font = '12px Arial';
+    ctx.textAlign = 'left';
+    const trackNames: Record<string, string> = {
+      asphalt: '🏁 ASPHALT',
+      desert: '🏜️ DESERT',
+      'night-city': '🌃 NIGHT CITY',
+      mountain: '⛰️ MOUNTAIN',
+    };
+    ctx.fillText(trackNames[trackType], 55, TRACK_HEIGHT - 10);
+  }, [playerProgress, opponent1Progress, opponent2Progress, trackType, colors]);
 
   return (
-    <div className="w-full h-full flex items-center justify-center">
+    <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-slate-800 via-blue-900 to-slate-900">
       <canvas
         ref={canvasRef}
-        width={400}
-        height={600}
+        width={TRACK_WIDTH}
+        height={TRACK_HEIGHT}
         className="border-4 border-yellow-400 rounded-lg shadow-2xl"
         style={{ 
           width: '100%', 
