@@ -13,12 +13,12 @@ interface MultiplayerRace2DProps {
 }
 
 const TRACK_COLORS = {
-  desert: { road: '#d4a574', center: '#ffffff', lane: '#ffaa00', barrier: '#c4915d' },
-  'night-city': { road: '#0a0a0a', center: '#00ffff', lane: '#ff00ff', barrier: '#ff0080' },
-  mountain: { road: '#5a5a5a', center: '#ffff00', lane: '#ffffff', barrier: '#888888' },
+  desert: { bg: '#c9a96a', road: '#8b7355', grass: '#a4a050' },
+  'night-city': { bg: '#1a1a2e', road: '#16213e', grass: '#0f3460' },
+  mountain: { bg: '#8b8680', road: '#5a5a5a', grass: '#6b7a6b' },
 };
 
-const CAR_COLORS = ['#ff0000', '#0066ff', '#ffff00', '#00ff00', '#ff00ff', '#00ffff'];
+const CAR_EMOJIS = ['🏎️', '🚗', '🚕', '🚙', '🏍️', '🚓'];
 
 export default function MultiplayerRace2D({ players, trackType }: MultiplayerRace2DProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -31,111 +31,134 @@ export default function MultiplayerRace2D({ players, trackType }: MultiplayerRac
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    const TRACK_WIDTH = 400;
-    const TRACK_HEIGHT = 600;
-    const laneCount = Math.min(players.length, 6);
-    const laneWidth = TRACK_WIDTH / laneCount;
+    const WIDTH = 500;
+    const HEIGHT = 350;
 
-    // Clear canvas
-    ctx.fillStyle = trackType === 'night-city' ? '#0a0a2e' : '#87ceeb';
-    ctx.fillRect(0, 0, TRACK_WIDTH, TRACK_HEIGHT);
+    // Clear canvas with background
+    ctx.fillStyle = colors.bg;
+    ctx.fillRect(0, 0, WIDTH, HEIGHT);
 
-    // Draw road
+    // Draw grass areas
+    ctx.fillStyle = colors.grass;
+    ctx.fillRect(0, 0, 60, HEIGHT);
+    ctx.fillRect(WIDTH - 60, 0, 60, HEIGHT);
+
+    // Draw winding road path (S-curve)
+    const roadWidth = 80;
     ctx.fillStyle = colors.road;
-    ctx.fillRect(0, 0, TRACK_WIDTH, TRACK_HEIGHT);
+    
+    // Top straight section
+    ctx.fillRect(60, 0, roadWidth, 80);
+    
+    // First curve
+    ctx.beginPath();
+    ctx.arc(60 + roadWidth / 2, 100, roadWidth / 2, -Math.PI / 2, 0, false);
+    ctx.fill();
+    
+    // Middle section
+    ctx.fillRect(120, 80, 50, 80);
+    ctx.fillRect(60, 160, 50, 80);
+    
+    // Second curve back
+    ctx.beginPath();
+    ctx.arc(60 + roadWidth / 2, 180, roadWidth / 2, 0, Math.PI / 2, false);
+    ctx.fill();
+    
+    // Bottom straight
+    ctx.fillRect(60, 240, roadWidth, HEIGHT - 240);
 
-    // Draw lane dividers
-    ctx.strokeStyle = colors.lane;
+    // Draw road markings (dashed center line)
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
     ctx.lineWidth = 2;
-    for (let i = 1; i < laneCount; i++) {
-      ctx.setLineDash([15, 25]);
-      ctx.lineDashOffset = -players[0].progress * 2;
+    ctx.setLineDash([10, 10]);
+    
+    // Draw marking along the path
+    for (let i = 0; i < HEIGHT; i += 30) {
       ctx.beginPath();
-      ctx.moveTo(i * laneWidth, 0);
-      ctx.lineTo(i * laneWidth, TRACK_HEIGHT);
+      ctx.moveTo(100, i);
+      ctx.lineTo(100, i + 15);
       ctx.stroke();
     }
     ctx.setLineDash([]);
 
-    // Draw finish line
-    ctx.fillStyle = '#00ff00';
-    ctx.fillRect(0, 80, TRACK_WIDTH, 10);
-    ctx.fillStyle = '#ffffff';
-    for (let i = 0; i < Math.ceil(TRACK_WIDTH / 25); i++) {
+    // Draw start line
+    ctx.fillStyle = '#ffaa00';
+    for (let i = 0; i < 10; i++) {
       if (i % 2 === 0) {
-        ctx.fillRect(i * 25, 80, 12, 10);
+        ctx.fillRect(60 + (i * 8), 0, 8, 15);
       }
     }
 
-    // Draw start line
-    ctx.fillStyle = '#ffaa00';
-    ctx.fillRect(0, TRACK_HEIGHT - 80, TRACK_WIDTH, 8);
+    // Draw finish line
+    ctx.fillStyle = '#00ff00';
+    for (let i = 0; i < 10; i++) {
+      if (i % 2 === 0) {
+        ctx.fillRect(60 + (i * 8), HEIGHT - 15, 8, 15);
+      }
+    }
 
-    // Draw cars
-    players.forEach((player, laneIndex) => {
-      const laneCenter = (laneIndex + 0.5) * laneWidth;
-      const position = (player.progress / 100) * (TRACK_HEIGHT - 160) + 120;
-      const color = CAR_COLORS[laneIndex % 6];
+    // Draw players along the path
+    players.forEach((player, idx) => {
+      const progressPercent = player.progress / 100;
+      
+      // Calculate position along the winding path
+      let x, y;
+      if (progressPercent < 0.25) {
+        // Top straight
+        x = 100;
+        y = progressPercent * 4 * 80;
+      } else if (progressPercent < 0.5) {
+        // First curve
+        const curveProgress = (progressPercent - 0.25) * 4;
+        x = 100 + (roadWidth / 2) * Math.sin(curveProgress * Math.PI / 2);
+        y = 80 + (roadWidth / 2) * (1 - Math.cos(curveProgress * Math.PI / 2));
+      } else if (progressPercent < 0.75) {
+        // Middle section
+        x = 85 - (progressPercent - 0.5) * 4 * 25;
+        y = 160 + (progressPercent - 0.5) * 4 * 80;
+      } else {
+        // Bottom straight
+        x = 85;
+        y = 240 + (progressPercent - 0.75) * 4 * (HEIGHT - 240);
+      }
 
-      // Car body - larger and more visible
-      ctx.fillStyle = color;
-      ctx.fillRect(laneCenter - 16, position - 24, 32, 48);
+      // Draw car emoji
+      ctx.font = 'bold 28px Arial';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(CAR_EMOJIS[idx % 6], x, y);
 
-      // Car cabin
-      ctx.fillStyle = '#333333';
-      ctx.fillRect(laneCenter - 14, position - 18, 28, 24);
-
-      // Windshield
-      ctx.fillStyle = '#4a90e2';
-      ctx.globalAlpha = 0.7;
-      ctx.fillRect(laneCenter - 12, position - 14, 24, 10);
-      ctx.globalAlpha = 1;
-
-      // Wheels
-      ctx.fillStyle = '#111111';
-      ctx.beginPath();
-      ctx.arc(laneCenter - 8, position - 4, 5, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.beginPath();
-      ctx.arc(laneCenter + 8, position - 4, 5, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.beginPath();
-      ctx.arc(laneCenter - 8, position + 18, 5, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.beginPath();
-      ctx.arc(laneCenter + 8, position + 18, 5, 0, Math.PI * 2);
-      ctx.fill();
-
-      // Player name label
+      // Draw player name with background
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+      ctx.fillRect(x - 30, y + 20, 60, 18);
       ctx.fillStyle = '#ffff00';
       ctx.font = 'bold 11px Arial';
-      ctx.textAlign = 'center';
-      ctx.fillText(player.name.substring(0, 3), laneCenter, position - 35);
+      ctx.fillText(player.name.substring(0, 6), x, y + 30);
 
-      // Progress percentage
+      // Draw progress percentage
       ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
-      ctx.font = 'bold 13px Arial';
-      ctx.fillText(`${Math.round(player.progress)}%`, laneCenter, 35);
+      ctx.font = 'bold 12px Arial';
+      ctx.fillText(`${Math.round(player.progress)}%`, x, y - 25);
     });
 
-    // Draw track name
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
-    ctx.font = '12px Arial';
+    // Draw track label
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+    ctx.font = '13px Arial';
     ctx.textAlign = 'left';
     const trackNames: Record<string, string> = {
-      desert: '🏜️ DESERT',
-      'night-city': '🌃 NIGHT CITY',
-      mountain: '⛰️ MOUNTAIN',
+      desert: '🏜️ DESERT RACE',
+      'night-city': '🌃 NIGHT CITY RACE',
+      mountain: '⛰️ MOUNTAIN RACE',
     };
-    ctx.fillText(trackNames[trackType], 10, TRACK_HEIGHT - 8);
+    ctx.fillText(trackNames[trackType], 10, 25);
   }, [players, trackType]);
 
   return (
-    <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-slate-800 via-blue-900 to-slate-900">
+    <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-slate-900 to-black p-2">
       <canvas
         ref={canvasRef}
-        width={400}
-        height={600}
+        width={500}
+        height={350}
         className="border-4 border-yellow-400 rounded-lg shadow-2xl"
         style={{
           width: '100%',

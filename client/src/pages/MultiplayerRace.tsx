@@ -358,8 +358,8 @@ export default function MultiplayerRace() {
               )}
 
               {gameState.isStarted && !gameState.winner && (
-                <div className="flex flex-col gap-3 h-full w-full">
-                  <div className="bg-gradient-to-b from-sky-600 via-blue-700 to-slate-800 rounded-lg overflow-hidden shadow-2xl border-4 border-yellow-400 h-2/5">
+                <div className="flex flex-col gap-2 h-full w-full">
+                  <div className="mt-2 bg-gradient-to-br from-slate-900 to-black rounded-lg overflow-hidden shadow-2xl border-4 border-yellow-400 h-1/2">
                     <MultiplayerRace2D
                       players={gameState.players}
                       trackType={selectedTrack}
