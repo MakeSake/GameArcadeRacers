@@ -257,17 +257,17 @@ export default function MultiplayerRace() {
       </div>
 
       <div className="flex flex-col h-full text-white">
-        <div className="text-center mb-2 pt-2">
-          <h1 className="game-title mb-1">
+        <div className={`text-center ${gameState.isStarted ? 'mb-1 pt-0' : 'mb-2 pt-2'}`}>
+          <h1 className={`game-title ${gameState.isStarted ? 'text-lg mb-0' : 'mb-1'}`}>
             MULTIPLAYER RACE
           </h1>
-          <p className="game-subtitle text-sm md:text-lg drop-shadow-md">
+          <p className={`game-subtitle drop-shadow-md ${gameState.isStarted ? 'text-xs' : 'text-sm md:text-lg'}`}>
             ⚡ RACE AGAINST OTHER PLAYERS ⚡
           </p>
         </div>
 
-        <div className={`flex flex-col items-center flex-1 ${gameState.isStarted ? 'justify-start px-2' : 'justify-start px-2 overflow-y-auto'}`}>
-          <div className={`bg-white/10 backdrop-blur-md rounded-lg shadow-2xl border border-white/20 ${gameState.isStarted ? 'h-full w-full max-w-full p-4' : 'w-full max-w-4xl p-4 md:p-6'}`}>
+        <div className={`flex flex-col ${gameState.isStarted ? 'flex-1 px-1' : 'items-center flex-1 px-2 overflow-y-auto'}`}>
+          <div className={`bg-white/10 backdrop-blur-md rounded-lg shadow-2xl border border-white/20 ${gameState.isStarted ? 'h-full w-full p-2' : 'w-full max-w-4xl p-4 md:p-6'}`}>
           {!isConnected ? (
             <div className="text-center space-y-4">
               <Users className="mx-auto h-12 w-12 text-blue-400" />
