@@ -103,6 +103,10 @@ export default function MultiplayerRace() {
           ...prev,
           winner,
         }));
+        // Mute background video when showing win video
+        if (videoRef.current) {
+          videoRef.current.volume = 0;
+        }
         setShowWinVideo(true);
         setWinnerCarIndex(winner.carIndex);
       }
@@ -159,6 +163,10 @@ export default function MultiplayerRace() {
       socket.emit("resetGame");
       setUserInput("");
       setShowWinVideo(false);
+      // Restore background video volume
+      if (videoRef.current) {
+        videoRef.current.volume = 0.8;
+      }
     }
   };
 
@@ -379,15 +387,20 @@ export default function MultiplayerRace() {
               )}
 
               {gameState.winner && (
-                <div className="text-center mt-6">
-                  <Trophy className="mx-auto h-16 w-16 text-yellow-400 mb-4" />
-                  <h2 className="text-3xl font-bold mb-2">
-                    {gameState.winner.name} Wins! {CAR_EMOJIS[gameState.winner.carIndex]}
-                  </h2>
+                <div className="text-center mt-6 space-y-3">
+                  <Trophy className="mx-auto h-16 w-16 text-yellow-400" />
+                  <div>
+                    <h2 className="text-4xl font-bold text-yellow-300">
+                      {gameState.winner.name}
+                    </h2>
+                    <p className="text-3xl font-bold mt-2">
+                      Wins! {CAR_EMOJIS[gameState.winner.carIndex]}
+                    </p>
+                  </div>
                   <Button
                     onClick={resetGame}
                     size="lg"
-                    className="game-button text-xl py-6 px-12 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 shadow-lg hover:shadow-cyan-500/50 mt-4"
+                    className="game-button text-xl py-6 px-12 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 shadow-lg hover:shadow-cyan-500/50"
                   >
                     🔄 PLAY AGAIN
                   </Button>
