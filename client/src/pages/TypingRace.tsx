@@ -38,11 +38,10 @@ export default function TypingRace() {
   const [showShapeSelect, setShowShapeSelect] = useState(false);
   const [device, setDevice] = useState(detectDevice());
   const inputRef = useRef<HTMLInputElement>(null);
-
-  const getRandomWideVideo = () => {
+  const [bgVideo] = useState(() => {
     const videoIndex = Math.floor(Math.random() * 7) + 1;
     return `/videos/wide_${videoIndex}.mp4`;
-  };
+  });
 
   useEffect(() => {
     if (targetText && isPlaying) {
@@ -152,9 +151,10 @@ export default function TypingRace() {
         autoPlay
         loop
         muted
+        key={bgVideo}
         className="absolute inset-0 w-full h-full object-cover opacity-50 -z-10"
       >
-        <source src={getRandomWideVideo()} type="video/mp4" />
+        <source src={bgVideo} type="video/mp4" />
       </video>
       
       {/* Animated background */}

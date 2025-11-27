@@ -5,6 +5,11 @@ import { Home, RotateCcw, X } from "lucide-react";
 
 type TimeOption = 1 | 10 | 60;
 
+const getRandomWideVideo = () => {
+  const videoIndex = Math.floor(Math.random() * 7) + 1;
+  return `/videos/wide_${videoIndex}.mp4`;
+};
+
 export default function CPSClicker() {
   const navigate = useNavigate();
   const [score, setScore] = useState(0);
@@ -14,6 +19,7 @@ export default function CPSClicker() {
   const [cps, setCps] = useState(0);
   const [clicks, setClicks] = useState(0);
   const [showResultModal, setShowResultModal] = useState(false);
+  const [bgVideo] = useState(getRandomWideVideo());
 
   useEffect(() => {
     if (isPlaying && timeLeft > 0) {
@@ -72,20 +78,16 @@ export default function CPSClicker() {
     return "10 Seconds";
   };
 
-  const getRandomWideVideo = () => {
-    const videoIndex = Math.floor(Math.random() * 7) + 1;
-    return `/videos/wide_${videoIndex}.mp4`;
-  };
-
   return (
     <div className="relative w-full h-screen bg-gradient-to-br from-purple-900 via-pink-900 to-purple-800 overflow-hidden">
       <video
         autoPlay
         loop
         muted
+        key={bgVideo}
         className="absolute inset-0 w-full h-full object-cover opacity-50 -z-10"
       >
-        <source src={getRandomWideVideo()} type="video/mp4" />
+        <source src={bgVideo} type="video/mp4" />
       </video>
       <div className="absolute top-4 left-4">
         <Button

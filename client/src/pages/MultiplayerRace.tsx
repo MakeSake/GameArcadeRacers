@@ -40,6 +40,10 @@ export default function MultiplayerRace() {
   const [showWinVideo, setShowWinVideo] = useState(false);
   const [winnerCarIndex, setWinnerCarIndex] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
+  const [bgVideo] = useState(() => {
+    const videoIndex = Math.floor(Math.random() * 7) + 1;
+    return `/videos/wide_${videoIndex}.mp4`;
+  });
 
   useEffect(() => {
     const newSocket = io(window.location.origin, {
@@ -153,20 +157,16 @@ export default function MultiplayerRace() {
   const myPlayer = gameState.players.find((p) => p.id === myPlayerId);
   const canStart = gameState.players.length >= 1 && !gameState.isStarted;
 
-  const getRandomWideVideo = () => {
-    const videoIndex = Math.floor(Math.random() * 7) + 1;
-    return `/videos/wide_${videoIndex}.mp4`;
-  };
-
   return (
     <div className="relative w-full h-screen bg-gradient-to-br from-green-900 via-emerald-900 to-green-800 overflow-hidden">
       <video
         autoPlay
         loop
         muted
+        key={bgVideo}
         className="absolute inset-0 w-full h-full object-cover opacity-50 -z-10"
       >
-        <source src={getRandomWideVideo()} type="video/mp4" />
+        <source src={bgVideo} type="video/mp4" />
       </video>
       {showWinVideo && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90">
