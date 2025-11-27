@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Home, Users, Trophy, Volume2, VolumeX } from "lucide-react";
 import { io, Socket } from "socket.io-client";
 import QRCodeScanner from "@/components/QRCodeScanner";
+import Race2D from "@/components/Race2D";
 import { getWinVideo } from "@/utils/deviceDetection";
 
 interface Player {
@@ -331,8 +332,19 @@ export default function MultiplayerRace() {
               )}
 
               {gameState.isStarted && (
-                <div>
-                  <div className="bg-white/5 rounded-lg p-6 mb-4 font-mono text-lg leading-relaxed max-h-32 overflow-y-auto">
+                <div className="flex flex-col gap-4">
+                  <div className="bg-gradient-to-b from-sky-600 via-blue-700 to-slate-800 rounded-2xl overflow-hidden shadow-2xl border-4 border-yellow-400 h-64">
+                    <Race2D 
+                      playerProgress={gameState.players.find(p => p.id === myPlayerId)?.progress || 0}
+                      opponent1Progress={gameState.players[1]?.progress || 0}
+                      opponent2Progress={gameState.players[2]?.progress || 0}
+                      trackType={selectedTrack}
+                      trackShape="curved"
+                      playerCount={gameState.players.length}
+                    />
+                  </div>
+
+                  <div className="bg-white/5 rounded-lg p-3 mb-2 font-mono text-xs leading-relaxed max-h-20 overflow-y-auto">
                     {gameState.targetText.split("").map((char, index) => {
                       let className = "text-white/50";
                       if (index < userInput.length) {
@@ -351,21 +363,21 @@ export default function MultiplayerRace() {
                     type="text"
                     value={userInput}
                     onChange={handleInputChange}
-                    className="w-full text-lg p-4 bg-white/90 text-black mb-6"
+                    className="w-full text-xs p-2 bg-white/90 text-black"
                     placeholder="Start typing here..."
                     disabled={!!gameState.winner}
                     autoFocus
                   />
 
-                  <div className="space-y-3">
+                  <div className="space-y-2 max-h-32 overflow-y-auto">
                     {gameState.players.map((player) => (
-                      <div key={player.id} className="relative h-16 bg-white/5 rounded-lg overflow-hidden">
-                        <div className="absolute left-2 top-1/2 -translate-y-1/2 text-sm font-semibold z-10">
+                      <div key={player.id} className="relative h-12 bg-white/5 rounded-lg overflow-hidden text-xs">
+                        <div className="absolute left-2 top-1/2 -translate-y-1/2 font-semibold z-10">
                           {player.name}
                         </div>
                         <div
-                          className="absolute top-1/2 -translate-y-1/2 transition-all duration-300 text-3xl"
-                          style={{ left: `calc(${player.progress}% - 20px)` }}
+                          className="absolute top-1/2 -translate-y-1/2 transition-all duration-300"
+                          style={{ left: `calc(${player.progress}% - 15px)` }}
                         >
                           {CAR_EMOJIS[player.carIndex]}
                         </div>
