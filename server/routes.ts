@@ -9,6 +9,7 @@ interface Player {
   progress: number;
   finished: boolean;
   carIndex: number;
+  ready?: boolean;
 }
 
 interface GameState {
@@ -64,12 +65,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
         progress: 0,
         finished: false,
         carIndex,
+        ready: false,
       };
 
       gameState.players.push(player);
       socket.emit("joinedGame");
       io.emit("gameState", gameState);
       console.log(`${name} joined the game (${gameState.players.length}/3)`);
+    });
+
+    socket.on("playerReady", ({ ready }: { ready: boolean }) => {
+      const player = gameState.players.find((p) => p.id === socket.id);
+      if (player && !gameState.isStarted) {
+        player.ready = ready;
+        io.emit("gameState", gameState);
+        console.log(`${player.name} is ${ready ? "ready" : "not ready"}`);
+
+        // Auto-start if all players are ready and there are 2+ players
+        if (gameState.players.length > 1 && gameState.players.every((p) => p.ready)) {
+          const randomText = SAMPLE_TEXTS[Math.floor(Math.random() * SAMPLE_TEXTS.length)];
+          gameState.targetText = randomText;
+          gameState.isStarted = true;
+          gameState.winner = null;
+          gameState.players.forEach((p) => {
+            p.progress = 0;
+            p.finished = false;
+            p.ready = false;
+          });
+
+          io.emit("gameStarted", gameState);
+          console.log("Game started with", gameState.players.length, "players");
+        }
+      }
     });
 
     socket.on("startGame", () => {
@@ -84,6 +111,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       gameState.players.forEach((p) => {
         p.progress = 0;
         p.finished = false;
+        p.ready = false;
       });
 
       io.emit("gameStarted", gameState);
@@ -119,6 +147,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           ...p,
           progress: 0,
           finished: false,
+          ready: false,
         })),
         targetText: "",
         isStarted: false,

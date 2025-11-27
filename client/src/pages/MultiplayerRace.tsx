@@ -14,6 +14,7 @@ interface Player {
   progress: number;
   finished: boolean;
   carIndex: number;
+  ready?: boolean;
 }
 
 interface GameState {
@@ -52,6 +53,7 @@ export default function MultiplayerRace() {
     return `/videos/wide_${videoIndex}.mp4`;
   });
   const [gameStartTime, setGameStartTime] = useState<number | null>(null);
+  const [isReady, setIsReady] = useState(false);
 
   const toggleMute = () => {
     if (videoRef.current) {
@@ -78,6 +80,7 @@ export default function MultiplayerRace() {
       setGameState(state);
       setUserInput("");
       setGameStartTime(Date.now());
+      setIsReady(false);
       setTimeout(() => inputRef.current?.focus(), 100);
     });
 
@@ -157,6 +160,13 @@ export default function MultiplayerRace() {
   const startGame = () => {
     if (socket) {
       socket.emit("startGame");
+    }
+  };
+
+  const toggleReady = () => {
+    if (socket) {
+      setIsReady(!isReady);
+      socket.emit("playerReady", { ready: !isReady });
     }
   };
 
@@ -345,16 +355,38 @@ export default function MultiplayerRace() {
                   )}
 
                   <QRCodeScanner roomId={myPlayerId} isConnected={isConnected} />
-                  <Button
-                    onClick={startGame}
-                    disabled={!canStart}
-                    size="lg"
-                    className="game-button text-lg py-3 px-8 bg-gradient-to-br from-yellow-400 via-orange-500 to-red-600 hover:from-yellow-300 hover:via-orange-400 hover:to-red-500 shadow-lg hover:shadow-orange-500/50"
-                  >
-                    🏁 START RACE 🏁
-                  </Button>
-                  {gameState.players.length === 0 && (
-                    <p className="text-xs text-white/60">Waiting for players...</p>
+                  
+                  {gameState.players.length > 1 ? (
+                    <>
+                      <Button
+                        onClick={toggleReady}
+                        size="lg"
+                        className={`game-button text-lg py-3 px-8 ${
+                          isReady
+                            ? 'bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-400 hover:to-emerald-500'
+                            : 'bg-gradient-to-br from-yellow-400 via-orange-500 to-red-600 hover:from-yellow-300 hover:via-orange-400 hover:to-red-500'
+                        } shadow-lg`}
+                      >
+                        {isReady ? '✓ READY' : '⏳ READY?'}
+                      </Button>
+                      {isReady && (
+                        <p className="text-sm text-yellow-300 font-bold animate-pulse">Waiting for others to click ready...</p>
+                      )}
+                    </>
+                  ) : (
+                    <>
+                      <Button
+                        onClick={startGame}
+                        disabled={!canStart}
+                        size="lg"
+                        className="game-button text-lg py-3 px-8 bg-gradient-to-br from-yellow-400 via-orange-500 to-red-600 hover:from-yellow-300 hover:via-orange-400 hover:to-red-500 shadow-lg hover:shadow-orange-500/50"
+                      >
+                        🏁 START RACE 🏁
+                      </Button>
+                      {gameState.players.length === 0 && (
+                        <p className="text-xs text-white/60">Waiting for players...</p>
+                      )}
+                    </>
                   )}
                 </div>
               )}
