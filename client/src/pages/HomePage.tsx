@@ -10,7 +10,7 @@ export default function HomePage() {
 
   useEffect(() => {
     if (videoRef.current) {
-      videoRef.current.volume = 0.3;
+      videoRef.current.volume = 0.8;
     }
   }, []);
 
@@ -32,7 +32,7 @@ export default function HomePage() {
 
       <div className="relative z-10 flex flex-col items-center justify-center h-full text-white">
         <div className="text-center mb-12">
-          <h1 className="game-title mb-4">
+          <h1 className="game-title mb-4 text-3d-rotate">
             GAME HUB
           </h1>
           <p className="game-subtitle text-xl md:text-2xl drop-shadow-md">
