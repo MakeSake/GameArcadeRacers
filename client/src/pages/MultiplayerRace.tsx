@@ -385,7 +385,7 @@ export default function MultiplayerRace() {
                     autoFocus
                   />
 
-                  <div className="bg-gradient-to-b from-sky-600 via-blue-700 to-slate-800 rounded-lg overflow-hidden shadow-2xl border-4 border-yellow-400 flex-1">
+                  <div className="bg-gradient-to-b from-sky-600 via-blue-700 to-slate-800 rounded-lg overflow-hidden shadow-2xl border-4 border-yellow-400 h-48">
                     <Race2D
                       playerProgress={gameState.players[0]?.progress || 0}
                       opponent1Progress={gameState.players[1]?.progress || 0}
