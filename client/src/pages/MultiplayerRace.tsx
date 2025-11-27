@@ -2,10 +2,9 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Home, Users, Trophy, Volume2, VolumeX } from "lucide-react";
+import { Home, Users, Trophy, Volume2, VolumeX, Medal } from "lucide-react";
 import { io, Socket } from "socket.io-client";
 import QRCodeScanner from "@/components/QRCodeScanner";
-import MultiplayerRace2D from "@/components/MultiplayerRace2D";
 import { getWinVideo } from "@/utils/deviceDetection";
 
 interface Player {
@@ -51,6 +50,7 @@ export default function MultiplayerRace() {
     const videoIndex = Math.floor(Math.random() * 7) + 1;
     return `/videos/wide_${videoIndex}.mp4`;
   });
+  const [gameStartTime, setGameStartTime] = useState<number | null>(null);
 
   const toggleMute = () => {
     if (videoRef.current) {
@@ -76,6 +76,7 @@ export default function MultiplayerRace() {
     newSocket.on("gameStarted", (state: GameState) => {
       setGameState(state);
       setUserInput("");
+      setGameStartTime(Date.now());
       setTimeout(() => inputRef.current?.focus(), 100);
     });
 
@@ -358,15 +359,8 @@ export default function MultiplayerRace() {
               )}
 
               {gameState.isStarted && !gameState.winner && (
-                <div className="flex flex-col gap-2 h-full w-full">
-                  <div className="mt-2 bg-gradient-to-br from-slate-900 to-black rounded-lg overflow-hidden shadow-2xl border-4 border-yellow-400 h-1/2">
-                    <MultiplayerRace2D
-                      players={gameState.players}
-                      trackType={selectedTrack}
-                    />
-                  </div>
-
-                  <div className="bg-white/5 rounded p-2 font-mono text-sm leading-relaxed line-clamp-2">
+                <div className="flex flex-col gap-3 h-full w-full">
+                  <div className="bg-white/5 rounded p-2 font-mono text-base leading-relaxed line-clamp-3">
                     {gameState.targetText.split("").map((char, index) => {
                       let className = "text-white/50";
                       if (index < userInput.length) {
@@ -390,17 +384,20 @@ export default function MultiplayerRace() {
                     autoFocus
                   />
 
-                  <div className="space-y-1 flex-1 overflow-y-auto">
+                  <div className="space-y-2 flex-1 overflow-y-auto">
                     {gameState.players.map((player) => (
-                      <div key={player.id} className="relative h-12 bg-white/5 rounded overflow-hidden text-xs font-bold">
-                        <div className="absolute left-2 top-1/2 -translate-y-1/2 z-10 truncate max-w-[40%]">
+                      <div key={player.id} className="relative h-14 bg-white/5 rounded overflow-hidden text-sm font-bold">
+                        <div className="absolute left-2 top-1/2 -translate-y-1/2 z-10 truncate max-w-[50%]">
                           {player.name}
                         </div>
                         <div
-                          className="absolute top-1/2 -translate-y-1/2 transition-all duration-300 text-2xl"
-                          style={{ left: `calc(${player.progress}% - 16px)` }}
+                          className="absolute top-1/2 -translate-y-1/2 transition-all duration-300 text-3xl"
+                          style={{ left: `calc(${player.progress}% - 20px)` }}
                         >
                           {CAR_EMOJIS[player.carIndex]}
+                        </div>
+                        <div className="absolute right-3 top-1/2 -translate-y-1/2 text-white/70">
+                          {Math.round(player.progress)}%
                         </div>
                         <div className="absolute right-0 top-0 w-1 h-full bg-yellow-400" />
                       </div>
@@ -410,20 +407,62 @@ export default function MultiplayerRace() {
               )}
 
               {gameState.winner && (
-                <div className="flex flex-col items-center justify-center h-full w-full space-y-6">
-                  <Trophy className="h-24 w-24 text-yellow-400" />
-                  <div className="text-center space-y-2">
-                    <h2 className="text-5xl font-bold text-yellow-300">
+                <div className="flex flex-col items-center justify-center h-full w-full space-y-4 overflow-y-auto p-2">
+                  <Trophy className="h-20 w-20 text-yellow-400" />
+                  <div className="text-center">
+                    <h2 className="text-4xl font-bold text-yellow-300">
                       {gameState.winner.name}
                     </h2>
-                    <p className="text-4xl font-bold text-white">
+                    <p className="text-3xl font-bold text-white">
                       Wins! {CAR_EMOJIS[gameState.winner.carIndex]}
                     </p>
                   </div>
+
+                  <div className="w-full max-w-md space-y-2">
+                    <h3 className="text-xl font-bold text-center text-yellow-300">RESULTS</h3>
+                    {gameState.players
+                      .sort((a, b) => b.progress - a.progress)
+                      .map((player, index) => {
+                        const wordCount = gameState.targetText.split(" ").length;
+                        const timeInSeconds = gameStartTime ? (Date.now() - gameStartTime) / 1000 : 60;
+                        const timeInMinutes = Math.max(timeInSeconds / 60, 0.1);
+                        const wpm = Math.round((wordCount * (player.progress / 100)) / timeInMinutes);
+
+                        return (
+                          <div
+                            key={player.id}
+                            className={`p-3 rounded-lg font-bold text-sm ${
+                              index === 0
+                                ? 'bg-yellow-500/30 border-2 border-yellow-400'
+                                : index === 1
+                                ? 'bg-gray-400/20 border-2 border-gray-400'
+                                : index === 2
+                                ? 'bg-orange-500/20 border-2 border-orange-400'
+                                : 'bg-white/5 border border-white/20'
+                            }`}
+                          >
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-2">
+                                <span className="text-lg">{index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `#${index + 1}`}</span>
+                                <span className="text-xl">{CAR_EMOJIS[player.carIndex]}</span>
+                                <div>
+                                  <p className="text-white">{player.name}</p>
+                                  <p className="text-xs text-white/60">{Math.round(player.progress)}%</p>
+                                </div>
+                              </div>
+                              <div className="text-right">
+                                <p className="text-lg text-yellow-300">{wpm} WPM</p>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                  </div>
+
                   <Button
                     onClick={resetGame}
                     size="lg"
-                    className="game-button text-xl py-6 px-12 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 shadow-lg hover:shadow-cyan-500/50"
+                    className="game-button text-lg py-4 px-10 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 shadow-lg hover:shadow-cyan-500/50 mt-2"
                   >
                     🔄 PLAY AGAIN
                   </Button>
