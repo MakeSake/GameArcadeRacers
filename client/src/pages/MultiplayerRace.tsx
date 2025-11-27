@@ -363,7 +363,6 @@ export default function MultiplayerRace() {
                     <MultiplayerRace2D
                       players={gameState.players}
                       trackType={selectedTrack}
-                      trackShape="curved"
                     />
                   </div>
 

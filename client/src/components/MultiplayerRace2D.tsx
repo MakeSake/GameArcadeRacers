@@ -10,7 +10,6 @@ interface Player {
 interface MultiplayerRace2DProps {
   players: Player[];
   trackType: 'desert' | 'night-city' | 'mountain';
-  trackShape?: 'straight' | 'curved' | 'circle';
 }
 
 const TRACK_COLORS = {
@@ -20,9 +19,8 @@ const TRACK_COLORS = {
 };
 
 const CAR_COLORS = ['#ff0000', '#0066ff', '#ffff00', '#00ff00', '#ff00ff', '#00ffff'];
-const CAR_NAMES = ['YOU', 'P2', 'P3', 'P4', 'P5', 'P6'];
 
-export default function MultiplayerRace2D({ players, trackType, trackShape = 'curved' }: MultiplayerRace2DProps) {
+export default function MultiplayerRace2D({ players, trackType }: MultiplayerRace2DProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const colors = TRACK_COLORS[trackType];
 
@@ -42,7 +40,7 @@ export default function MultiplayerRace2D({ players, trackType, trackShape = 'cu
     ctx.fillStyle = trackType === 'night-city' ? '#0a0a2e' : '#87ceeb';
     ctx.fillRect(0, 0, TRACK_WIDTH, TRACK_HEIGHT);
 
-    // Draw road background
+    // Draw road
     ctx.fillStyle = colors.road;
     ctx.fillRect(0, 0, TRACK_WIDTH, TRACK_HEIGHT);
 
@@ -59,108 +57,69 @@ export default function MultiplayerRace2D({ players, trackType, trackShape = 'cu
     }
     ctx.setLineDash([]);
 
-    // Draw center line (animated)
-    ctx.strokeStyle = colors.center;
-    ctx.lineWidth = 3;
-    ctx.setLineDash([20, 30]);
-    ctx.lineDashOffset = -players[0].progress * 2;
-    ctx.beginPath();
-    ctx.moveTo(0, 0);
-    ctx.lineTo(0, TRACK_HEIGHT);
-    ctx.stroke();
-    ctx.setLineDash([]);
-
-    // Draw barriers
-    ctx.fillStyle = colors.barrier;
-    ctx.fillRect(0, 0, 5, TRACK_HEIGHT); // Left
-    ctx.fillRect(TRACK_WIDTH - 5, 0, 5, TRACK_HEIGHT); // Right
-
     // Draw finish line
     ctx.fillStyle = '#00ff00';
-    ctx.fillRect(0, 100, TRACK_WIDTH, 8);
+    ctx.fillRect(0, 80, TRACK_WIDTH, 10);
     ctx.fillStyle = '#ffffff';
     for (let i = 0; i < Math.ceil(TRACK_WIDTH / 25); i++) {
       if (i % 2 === 0) {
-        ctx.fillRect(i * 25, 100, 12, 8);
+        ctx.fillRect(i * 25, 80, 12, 10);
       }
     }
 
     // Draw start line
     ctx.fillStyle = '#ffaa00';
-    ctx.fillRect(0, TRACK_HEIGHT - 100, TRACK_WIDTH, 6);
+    ctx.fillRect(0, TRACK_HEIGHT - 80, TRACK_WIDTH, 8);
 
     // Draw cars
-    const drawCar = (progress: number, laneIndex: number, color: string, name: string) => {
+    players.forEach((player, laneIndex) => {
       const laneCenter = (laneIndex + 0.5) * laneWidth;
-      const position = (progress / 100) * (TRACK_HEIGHT - 200) + 150;
+      const position = (player.progress / 100) * (TRACK_HEIGHT - 160) + 120;
+      const color = CAR_COLORS[laneIndex % 6];
 
-      // Car body
+      // Car body - larger and more visible
       ctx.fillStyle = color;
-      ctx.fillRect(laneCenter - 12, position - 18, 24, 36);
+      ctx.fillRect(laneCenter - 16, position - 24, 32, 48);
 
       // Car cabin
       ctx.fillStyle = '#333333';
-      ctx.fillRect(laneCenter - 10, position - 14, 20, 18);
+      ctx.fillRect(laneCenter - 14, position - 18, 28, 24);
 
       // Windshield
       ctx.fillStyle = '#4a90e2';
-      ctx.globalAlpha = 0.6;
-      ctx.fillRect(laneCenter - 8, position - 11, 16, 7);
+      ctx.globalAlpha = 0.7;
+      ctx.fillRect(laneCenter - 12, position - 14, 24, 10);
       ctx.globalAlpha = 1;
 
       // Wheels
       ctx.fillStyle = '#111111';
       ctx.beginPath();
-      ctx.arc(laneCenter - 6, position - 3, 3, 0, Math.PI * 2);
+      ctx.arc(laneCenter - 8, position - 4, 5, 0, Math.PI * 2);
       ctx.fill();
       ctx.beginPath();
-      ctx.arc(laneCenter + 6, position - 3, 3, 0, Math.PI * 2);
+      ctx.arc(laneCenter + 8, position - 4, 5, 0, Math.PI * 2);
       ctx.fill();
       ctx.beginPath();
-      ctx.arc(laneCenter - 6, position + 13, 3, 0, Math.PI * 2);
+      ctx.arc(laneCenter - 8, position + 18, 5, 0, Math.PI * 2);
       ctx.fill();
       ctx.beginPath();
-      ctx.arc(laneCenter + 6, position + 13, 3, 0, Math.PI * 2);
+      ctx.arc(laneCenter + 8, position + 18, 5, 0, Math.PI * 2);
       ctx.fill();
 
-      // Headlights
-      ctx.fillStyle = '#ffff99';
-      ctx.beginPath();
-      ctx.arc(laneCenter - 4, position - 20, 2, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.beginPath();
-      ctx.arc(laneCenter + 4, position - 20, 2, 0, Math.PI * 2);
-      ctx.fill();
-
-      // Speed glow
-      if (progress > 30) {
-        ctx.fillStyle = color;
-        ctx.globalAlpha = 0.3;
-        ctx.beginPath();
-        ctx.arc(laneCenter, position + 22, 12, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.globalAlpha = 1;
-      }
-
-      // Car label
-      ctx.fillStyle = '#ffffff';
-      ctx.font = 'bold 10px Arial';
+      // Player name label
+      ctx.fillStyle = '#ffff00';
+      ctx.font = 'bold 11px Arial';
       ctx.textAlign = 'center';
-      ctx.fillText(name, laneCenter, position - 30);
+      ctx.fillText(player.name.substring(0, 3), laneCenter, position - 35);
 
       // Progress percentage
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
-      ctx.font = 'bold 12px Arial';
-      ctx.fillText(`${Math.round(progress)}%`, laneCenter, 30);
-    };
-
-    // Draw all players
-    players.forEach((player, index) => {
-      drawCar(player.progress, index, CAR_COLORS[index % 6], player.name.substring(0, 4).toUpperCase());
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+      ctx.font = 'bold 13px Arial';
+      ctx.fillText(`${Math.round(player.progress)}%`, laneCenter, 35);
     });
 
     // Draw track name
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
     ctx.font = '12px Arial';
     ctx.textAlign = 'left';
     const trackNames: Record<string, string> = {
@@ -168,8 +127,8 @@ export default function MultiplayerRace2D({ players, trackType, trackShape = 'cu
       'night-city': '🌃 NIGHT CITY',
       mountain: '⛰️ MOUNTAIN',
     };
-    ctx.fillText(trackNames[trackType], 10, TRACK_HEIGHT - 10);
-  }, [players, trackType, trackShape]);
+    ctx.fillText(trackNames[trackType], 10, TRACK_HEIGHT - 8);
+  }, [players, trackType]);
 
   return (
     <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-slate-800 via-blue-900 to-slate-900">
