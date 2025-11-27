@@ -87,11 +87,11 @@ export default function CPSClicker() {
 
       <div className="flex flex-col items-center justify-center h-full text-white px-4">
         <div className="text-center mb-8">
-          <h1 className="text-5xl md:text-7xl font-bold mb-4 drop-shadow-lg">
-            CPS Clicker
+          <h1 className="game-title mb-4">
+            CPS CLICKER
           </h1>
-          <p className="text-xl md:text-2xl drop-shadow-md">
-            Click as fast as you can!
+          <p className="game-subtitle text-xl md:text-2xl drop-shadow-md">
+            ⚡ CLICK AS FAST AS YOU CAN! ⚡
           </p>
         </div>
 
@@ -125,9 +125,9 @@ export default function CPSClicker() {
                         setTimeLeft(time);
                       }}
                       variant={selectedTime === time ? "default" : "outline"}
-                      className={`text-sm md:text-base py-3 ${
+                      className={`game-button text-sm md:text-base py-3 ${
                         selectedTime === time
-                          ? "bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white"
+                          ? "bg-gradient-to-br from-purple-500 via-pink-600 to-purple-700 hover:from-purple-400 hover:via-pink-500 hover:to-purple-600 text-white shadow-lg"
                           : "bg-white/10 text-white border-white/30 hover:bg-white/20"
                       }`}
                     >
@@ -139,9 +139,9 @@ export default function CPSClicker() {
               <Button
                 onClick={startGame}
                 size="lg"
-                className="w-full text-xl py-6 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600"
+                className="game-button w-full text-xl py-6 bg-gradient-to-br from-green-500 via-emerald-600 to-teal-700 hover:from-green-400 hover:via-emerald-500 hover:to-teal-600 shadow-lg hover:shadow-green-500/50"
               >
-                Start Game
+                🎮 START GAME 🎮
               </Button>
             </>
           )}

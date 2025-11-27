@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Home, Users, Trophy } from "lucide-react";
 import { io, Socket } from "socket.io-client";
 import QRCodeScanner from "@/components/QRCodeScanner";
+import { getWinVideo } from "@/utils/deviceDetection";
 
 interface Player {
   id: string;
@@ -155,24 +156,23 @@ export default function MultiplayerRace() {
   return (
     <div className="relative w-full h-screen bg-gradient-to-br from-green-900 via-emerald-900 to-green-800 overflow-hidden">
       {showWinVideo && (
-        <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/80">
-          <div className="relative">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90">
+          <div className="relative w-full h-full flex items-center justify-center">
             <video
               autoPlay
               onEnded={() => setShowWinVideo(false)}
-              className="max-w-full max-h-screen"
+              className="w-full h-full object-contain"
             >
-              <source src={`/videos/win${winnerCarIndex + 1}.mp4`} type="video/mp4" />
+              <source src={getWinVideo()} type="video/mp4" />
             </video>
-            <div className="absolute top-4 left-1/2 -translate-x-1/2 text-white text-3xl font-bold bg-black/50 px-6 py-3 rounded-lg">
-              {gameState.winner?.name} Wins!
+            <div className="absolute top-4 left-1/2 -translate-x-1/2 text-white text-3xl font-bold bg-black/70 px-6 py-3 rounded-lg game-title">
+              {gameState.winner?.name} WINS! 🏆
             </div>
             <Button
               onClick={() => setShowWinVideo(false)}
-              className="absolute top-4 right-4"
-              variant="outline"
+              className="game-button absolute top-4 right-4 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-400 hover:to-red-500 text-white border-2 border-white"
             >
-              Skip
+              ✕ Skip
             </Button>
           </div>
         </div>
@@ -191,11 +191,11 @@ export default function MultiplayerRace() {
 
       <div className="flex flex-col items-center justify-center h-full text-white px-4">
         <div className="text-center mb-8">
-          <h1 className="text-5xl md:text-7xl font-bold mb-4 drop-shadow-lg">
-            Multiplayer Race
+          <h1 className="game-title mb-4">
+            MULTIPLAYER RACE
           </h1>
-          <p className="text-xl md:text-2xl drop-shadow-md">
-            Race against other players!
+          <p className="game-subtitle text-xl md:text-2xl drop-shadow-md">
+            ⚡ RACE AGAINST OTHER PLAYERS ⚡
           </p>
         </div>
 
@@ -217,7 +217,7 @@ export default function MultiplayerRace() {
                 onClick={joinGame}
                 disabled={!playerName.trim()}
                 size="lg"
-                className="text-xl py-6 px-12 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600"
+                className="game-button text-xl py-6 px-12 bg-gradient-to-br from-green-500 via-emerald-600 to-teal-700 hover:from-green-400 hover:via-emerald-500 hover:to-teal-600 shadow-lg hover:shadow-green-500/50"
               >
                 Join Game
               </Button>
@@ -253,9 +253,9 @@ export default function MultiplayerRace() {
                     onClick={startGame}
                     disabled={!canStart}
                     size="lg"
-                    className="text-xl py-6 px-12 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600"
+                    className="game-button text-xl py-6 px-12 bg-gradient-to-br from-yellow-400 via-orange-500 to-red-600 hover:from-yellow-300 hover:via-orange-400 hover:to-red-500 shadow-2xl hover:shadow-orange-500/50"
                   >
-                    Start Race
+                    🏁 START RACE 🏁
                   </Button>
                   {gameState.players.length === 0 && (
                     <p className="mt-4 text-white/60">Waiting for players...</p>
@@ -318,9 +318,9 @@ export default function MultiplayerRace() {
                   <Button
                     onClick={resetGame}
                     size="lg"
-                    className="text-xl py-6 px-12 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 mt-4"
+                    className="game-button text-xl py-6 px-12 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 shadow-lg hover:shadow-cyan-500/50 mt-4"
                   >
-                    Play Again
+                    🔄 PLAY AGAIN
                   </Button>
                 </div>
               )}

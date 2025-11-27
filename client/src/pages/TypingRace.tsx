@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Home, RotateCcw, Trophy, Zap } from "lucide-react";
 import Race2D from "@/components/Race2D";
-import { detectDevice } from "@/utils/deviceDetection";
+import { detectDevice, getWinVideo } from "@/utils/deviceDetection";
 
 const SAMPLE_TEXTS = [
   "speed is everything in racing fast reflexes win championships",
@@ -151,21 +151,20 @@ export default function TypingRace() {
       </div>
 
       {showWinVideo && (
-        <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/90">
-          <div className="relative">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90">
+          <div className="relative w-full h-full flex items-center justify-center">
             <video
               autoPlay
               onEnded={() => setShowWinVideo(false)}
-              className="max-w-full max-h-screen"
+              className="w-full h-full object-contain"
             >
-              <source src={`/videos/win${winner === 'player' ? 1 : winner === 'opponent1' ? 2 : 3}.mp4`} type="video/mp4" />
+              <source src={winner === 'player' ? getWinVideo() : '/videos/win3.mp4'} type="video/mp4" />
             </video>
             <Button
               onClick={() => setShowWinVideo(false)}
-              className="absolute top-4 right-4"
-              variant="outline"
+              className="game-button absolute top-4 right-4 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-400 hover:to-red-500 text-white border-2 border-white"
             >
-              Skip
+              ✕ Skip
             </Button>
           </div>
         </div>
@@ -175,7 +174,7 @@ export default function TypingRace() {
         <Button
           onClick={() => navigate("/")}
           variant="outline"
-          className="bg-white/10 backdrop-blur-sm text-white border-white/20 hover:bg-white/20 hover:text-white cursor-pointer"
+          className="game-button bg-gradient-to-r from-white/10 to-white/5 backdrop-blur-sm text-white border-white/30 hover:bg-white/20 hover:text-white cursor-pointer border-2"
         >
           <Home className="mr-2 h-4 w-4" />
           Home
