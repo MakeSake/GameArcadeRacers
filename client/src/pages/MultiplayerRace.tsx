@@ -239,18 +239,18 @@ export default function MultiplayerRace() {
           </p>
         </div>
 
-        <div className={`flex flex-col items-center flex-1 ${gameState.isStarted ? 'justify-center px-2' : 'justify-start px-2'}`}>
-          <div className={`bg-white/10 backdrop-blur-md rounded-lg shadow-2xl border border-white/20 ${gameState.isStarted ? 'h-full w-full max-w-full p-4' : 'w-full max-w-4xl p-6 md:p-8 mb-4'}`}>
+        <div className={`flex flex-col items-center flex-1 ${gameState.isStarted ? 'justify-center px-2' : 'justify-start px-2 overflow-y-auto'}`}>
+          <div className={`bg-white/10 backdrop-blur-md rounded-lg shadow-2xl border border-white/20 ${gameState.isStarted ? 'h-full w-full max-w-full p-4' : 'w-full max-w-4xl p-4 md:p-6'}`}>
           {!isConnected ? (
-            <div className="text-center space-y-6">
-              <Users className="mx-auto h-16 w-16 text-blue-400" />
-              <h2 className="text-2xl font-bold">Join the Race</h2>
+            <div className="text-center space-y-4">
+              <Users className="mx-auto h-12 w-12 text-blue-400" />
+              <h2 className="text-xl font-bold">Join the Race</h2>
               <Input
                 type="text"
                 value={playerName}
                 onChange={(e) => setPlayerName(e.target.value)}
                 onKeyPress={(e) => e.key === "Enter" && joinGame()}
-                className="w-full text-lg p-4 bg-white/90 text-black"
+                className="w-full text-base p-3 bg-white/90 text-black"
                 placeholder="Enter your name..."
                 maxLength={20}
               />
@@ -258,22 +258,22 @@ export default function MultiplayerRace() {
                 onClick={joinGame}
                 disabled={!playerName.trim()}
                 size="lg"
-                className="game-button text-xl py-6 px-12 bg-gradient-to-br from-green-500 via-emerald-600 to-teal-700 hover:from-green-400 hover:via-emerald-500 hover:to-teal-600 shadow-lg hover:shadow-green-500/50"
+                className="game-button text-lg py-4 px-8 bg-gradient-to-br from-green-500 via-emerald-600 to-teal-700 hover:from-green-400 hover:via-emerald-500 hover:to-teal-600 shadow-lg hover:shadow-green-500/50"
               >
                 Join Game
               </Button>
             </div>
           ) : (
             <>
-              <div className="mb-6">
-                <h3 className="text-xl font-bold mb-4">
+              <div className="mb-4">
+                <h3 className="text-lg font-bold mb-2">
                   Players ({gameState.players.length})
                 </h3>
-                <div className="space-y-2">
+                <div className="space-y-1 max-h-24 overflow-y-auto">
                   {gameState.players.map((player) => (
                     <div
                       key={player.id}
-                      className={`bg-white/10 rounded-lg p-3 flex items-center justify-between ${
+                      className={`bg-white/10 rounded-lg p-2 flex items-center justify-between text-sm ${
                         player.id === myPlayerId ? "ring-2 ring-yellow-400" : ""
                       }`}
                     >
@@ -281,25 +281,25 @@ export default function MultiplayerRace() {
                         {CAR_EMOJIS[player.carIndex]} {player.name}
                         {player.id === myPlayerId && " (You)"}
                       </span>
-                      {player.finished && <Trophy className="h-5 w-5 text-yellow-400" />}
+                      {player.finished && <Trophy className="h-4 w-4 text-yellow-400" />}
                     </div>
                   ))}
                 </div>
               </div>
 
               {!gameState.isStarted && !gameState.winner && (
-                <div className="text-center space-y-4">
-                  <div className="flex justify-center gap-2 mb-4">
+                <div className="text-center space-y-2">
+                  <div className="flex justify-center gap-2 mb-2">
                     <Button
                       onClick={() => setShowTrackSelect(!showTrackSelect)}
-                      className="game-button px-4 py-2 bg-gradient-to-r from-yellow-500 to-orange-600 hover:from-yellow-400 hover:to-orange-500 text-white border-2 border-yellow-300 shadow-lg text-sm"
+                      className="game-button px-3 py-1 bg-gradient-to-r from-yellow-500 to-orange-600 hover:from-yellow-400 hover:to-orange-500 text-white border-2 border-yellow-300 shadow-lg text-xs"
                     >
                       🛣️ {selectedTrack.toUpperCase()}
                     </Button>
                   </div>
 
                   {showTrackSelect && (
-                    <div className="bg-black/90 backdrop-blur rounded-lg p-3 border border-white/30 w-48 mx-auto mb-4 space-y-2">
+                    <div className="bg-black/90 backdrop-blur rounded-lg p-2 border border-white/30 w-40 mx-auto mb-2 space-y-1">
                       {(['desert', 'night-city', 'mountain'] as TrackType[]).map(track => (
                         <Button
                           key={track}
@@ -307,7 +307,7 @@ export default function MultiplayerRace() {
                             setSelectedTrack(track);
                             setShowTrackSelect(false);
                           }}
-                          className={`w-full text-left justify-start text-sm ${selectedTrack === track ? 'bg-yellow-500 text-white' : 'bg-white/10 hover:bg-white/20'}`}
+                          className={`w-full text-left justify-start text-xs py-1 ${selectedTrack === track ? 'bg-yellow-500 text-white' : 'bg-white/10 hover:bg-white/20'}`}
                         >
                           {track === 'desert' && '🏜️ Desert'}
                           {track === 'night-city' && '🌃 Night City'}
@@ -322,12 +322,12 @@ export default function MultiplayerRace() {
                     onClick={startGame}
                     disabled={!canStart}
                     size="lg"
-                    className="game-button text-xl py-6 px-12 bg-gradient-to-br from-yellow-400 via-orange-500 to-red-600 hover:from-yellow-300 hover:via-orange-400 hover:to-red-500 shadow-2xl hover:shadow-orange-500/50"
+                    className="game-button text-lg py-3 px-8 bg-gradient-to-br from-yellow-400 via-orange-500 to-red-600 hover:from-yellow-300 hover:via-orange-400 hover:to-red-500 shadow-lg hover:shadow-orange-500/50"
                   >
                     🏁 START RACE 🏁
                   </Button>
                   {gameState.players.length === 0 && (
-                    <p className="mt-4 text-white/60">Waiting for players...</p>
+                    <p className="text-xs text-white/60">Waiting for players...</p>
                   )}
                 </div>
               )}
