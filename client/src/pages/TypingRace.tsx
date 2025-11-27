@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Home, RotateCcw, Trophy, Zap } from "lucide-react";
 import Race2D from "@/components/Race2D";
+import { detectDevice } from "@/utils/deviceDetection";
 
 const SAMPLE_TEXTS = [
   "speed is everything in racing fast reflexes win championships",
@@ -14,6 +15,7 @@ const SAMPLE_TEXTS = [
 ];
 
 type TrackType = 'asphalt' | 'desert' | 'night-city' | 'mountain';
+type TrackShape = 'straight' | 'curved' | 'circle';
 
 export default function TypingRace() {
   const navigate = useNavigate();
@@ -32,6 +34,9 @@ export default function TypingRace() {
   const [winner, setWinner] = useState<'player' | 'opponent1' | 'opponent2' | null>(null);
   const [selectedTrack, setSelectedTrack] = useState<TrackType>('asphalt');
   const [showTrackSelect, setShowTrackSelect] = useState(false);
+  const [selectedShape, setSelectedShape] = useState<TrackShape>('straight');
+  const [showShapeSelect, setShowShapeSelect] = useState(false);
+  const [device, setDevice] = useState(detectDevice());
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -196,19 +201,28 @@ export default function TypingRace() {
             opponent1Progress={opponent1Progress}
             opponent2Progress={opponent2Progress}
             trackType={selectedTrack}
+            trackShape={selectedShape}
           />
           
           {/* Track Selection Overlay */}
           {!isPlaying && !isFinished && (
-            <div className="absolute top-4 right-4 z-20">
+            <div className="absolute top-4 right-4 z-20 flex gap-2">
               <Button
                 onClick={() => setShowTrackSelect(!showTrackSelect)}
-                className="game-button px-6 py-2 bg-gradient-to-r from-yellow-500 to-orange-600 hover:from-yellow-400 hover:to-orange-500 text-white border-2 border-yellow-300 shadow-lg hover:shadow-yellow-400/50"
+                className="game-button px-4 py-2 bg-gradient-to-r from-yellow-500 to-orange-600 hover:from-yellow-400 hover:to-orange-500 text-white border-2 border-yellow-300 shadow-lg text-sm"
               >
                 🛣️ {selectedTrack.toUpperCase()}
               </Button>
+              
+              <Button
+                onClick={() => setShowShapeSelect(!showShapeSelect)}
+                className="game-button px-4 py-2 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white border-2 border-cyan-300 shadow-lg text-sm"
+              >
+                ◯ {selectedShape.toUpperCase()}
+              </Button>
+
               {showTrackSelect && (
-                <div className="absolute top-12 right-0 bg-black/80 backdrop-blur rounded-lg p-3 border border-white/30 w-48 space-y-2">
+                <div className="absolute top-12 right-20 bg-black/90 backdrop-blur rounded-lg p-3 border border-white/30 w-48 space-y-2">
                   {(['asphalt', 'desert', 'night-city', 'mountain'] as TrackType[]).map(track => (
                     <Button
                       key={track}
@@ -216,12 +230,31 @@ export default function TypingRace() {
                         setSelectedTrack(track);
                         setShowTrackSelect(false);
                       }}
-                      className={`w-full text-left justify-start ${selectedTrack === track ? 'bg-yellow-500' : 'bg-white/10 hover:bg-white/20'}`}
+                      className={`w-full text-left justify-start text-sm ${selectedTrack === track ? 'bg-yellow-500' : 'bg-white/10 hover:bg-white/20'}`}
                     >
                       {track === 'asphalt' && '🏁 Asphalt'}
                       {track === 'desert' && '🏜️ Desert'}
                       {track === 'night-city' && '🌃 Night City'}
                       {track === 'mountain' && '⛰️ Mountain'}
+                    </Button>
+                  ))}
+                </div>
+              )}
+
+              {showShapeSelect && (
+                <div className="absolute top-12 right-0 bg-black/90 backdrop-blur rounded-lg p-3 border border-white/30 w-48 space-y-2">
+                  {(['straight', 'curved', 'circle'] as TrackShape[]).map(shape => (
+                    <Button
+                      key={shape}
+                      onClick={() => {
+                        setSelectedShape(shape);
+                        setShowShapeSelect(false);
+                      }}
+                      className={`w-full text-left justify-start text-sm ${selectedShape === shape ? 'bg-cyan-500' : 'bg-white/10 hover:bg-white/20'}`}
+                    >
+                      {shape === 'straight' && '━━ Straight'}
+                      {shape === 'curved' && '≈≈ Curved'}
+                      {shape === 'circle' && '◯ Circle'}
                     </Button>
                   ))}
                 </div>

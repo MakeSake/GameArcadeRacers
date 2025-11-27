@@ -6,10 +6,17 @@ interface Race2DProps {
   opponent1Progress: number;
   opponent2Progress: number;
   trackType: 'asphalt' | 'desert' | 'night-city' | 'mountain';
+  trackShape?: 'straight' | 'curved' | 'circle';
 }
 
 const TRACK_WIDTH = 400;
 const TRACK_HEIGHT = 600;
+
+const TRACK_SHAPES = {
+  straight: 'straight',
+  curved: 'curved',
+  circle: 'circle',
+};
 
 const TRACK_COLORS = {
   asphalt: { road: '#0a0a0a', center: '#ffff00', lane: '#ffffff', barrier: '#ff0000' },
@@ -18,9 +25,36 @@ const TRACK_COLORS = {
   mountain: { road: '#5a5a5a', center: '#ffff00', lane: '#ffffff', barrier: '#888888' },
 };
 
-export default function Race2D({ playerProgress, opponent1Progress, opponent2Progress, trackType }: Race2DProps) {
+export default function Race2D({ playerProgress, opponent1Progress, opponent2Progress, trackType, trackShape = 'straight' }: Race2DProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const colors = TRACK_COLORS[trackType];
+
+  const drawTrack = (ctx: CanvasRenderingContext2D, shape: string) => {
+    if (shape === 'curved') {
+      // Draw curved road
+      ctx.fillStyle = colors.road;
+      ctx.beginPath();
+      ctx.moveTo(50, 0);
+      ctx.quadraticCurveTo(200, TRACK_HEIGHT / 2, 350, TRACK_HEIGHT);
+      ctx.lineTo(350, TRACK_HEIGHT);
+      ctx.quadraticCurveTo(200, TRACK_HEIGHT / 2, 50, 0);
+      ctx.fill();
+    } else if (shape === 'circle') {
+      // Draw circular track
+      ctx.fillStyle = colors.road;
+      ctx.beginPath();
+      ctx.arc(TRACK_WIDTH / 2, TRACK_HEIGHT / 2, 120, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = trackType === 'night-city' ? '#0a0a2e' : '#87ceeb';
+      ctx.beginPath();
+      ctx.arc(TRACK_WIDTH / 2, TRACK_HEIGHT / 2, 80, 0, Math.PI * 2);
+      ctx.fill();
+    } else {
+      // Straight road (default)
+      ctx.fillStyle = colors.road;
+      ctx.fillRect(50, 0, 300, TRACK_HEIGHT);
+    }
+  };
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -34,8 +68,7 @@ export default function Race2D({ playerProgress, opponent1Progress, opponent2Pro
     ctx.fillRect(0, 0, TRACK_WIDTH, TRACK_HEIGHT);
 
     // Draw road
-    ctx.fillStyle = colors.road;
-    ctx.fillRect(50, 0, 300, TRACK_HEIGHT);
+    drawTrack(ctx, trackShape);
 
     // Draw lane dividers (animated)
     ctx.strokeStyle = colors.center;

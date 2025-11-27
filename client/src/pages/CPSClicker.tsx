@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Home, RotateCcw } from "lucide-react";
+import { Home, RotateCcw, X } from "lucide-react";
 
 type TimeOption = 1 | 10 | 60;
 
@@ -13,6 +13,7 @@ export default function CPSClicker() {
   const [timeLeft, setTimeLeft] = useState(10);
   const [cps, setCps] = useState(0);
   const [clicks, setClicks] = useState(0);
+  const [showResultModal, setShowResultModal] = useState(false);
 
   useEffect(() => {
     if (isPlaying && timeLeft > 0) {
@@ -21,12 +22,12 @@ export default function CPSClicker() {
       }, 1000);
       return () => clearTimeout(timer);
     } else if (timeLeft === 0 && isPlaying) {
-      setIsPlaying(false);
       setClicks(currentClicks => {
         const finalCPS = currentClicks / selectedTime;
         setCps(parseFloat(finalCPS.toFixed(2)));
         return currentClicks;
       });
+      handleGameEnd();
     }
   }, [isPlaying, timeLeft, selectedTime]);
 
@@ -36,6 +37,17 @@ export default function CPSClicker() {
       setClicks(prev => prev + 1);
     }
   }, [isPlaying]);
+
+  const handleGameEnd = () => {
+    setIsPlaying(false);
+    setShowResultModal(true);
+  };
+
+  useEffect(() => {
+    if (timeLeft === 0 && isPlaying) {
+      handleGameEnd();
+    }
+  }, [timeLeft, isPlaying]);
 
   const startGame = () => {
     setScore(0);
@@ -51,6 +63,7 @@ export default function CPSClicker() {
     setTimeLeft(selectedTime);
     setCps(0);
     setIsPlaying(false);
+    setShowResultModal(false);
   };
 
   const getTimeLabel = (time: TimeOption) => {
@@ -134,22 +147,21 @@ export default function CPSClicker() {
           )}
 
           {isPlaying && (
-            <Button
-              onClick={handleClick}
-              size="lg"
-              className="w-full text-xl py-12 bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 transform transition active:scale-95"
-            >
-              CLICK ME!
-            </Button>
+            <div className="w-full h-32 rounded-xl bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-400 hover:to-orange-400 cursor-pointer transform transition active:scale-95 flex items-center justify-center shadow-lg border-4 border-yellow-200" onClick={handleClick}>
+              <div className="text-center">
+                <div className="text-3xl font-bold text-white">CLICK ME!</div>
+                <div className="text-sm text-white/80 mt-2">HUGE CLICK AREA</div>
+              </div>
+            </div>
           )}
 
-          {!isPlaying && timeLeft === 0 && (
+          {!isPlaying && timeLeft === 0 && !showResultModal && (
             <div className="space-y-4">
               <div className="text-center text-2xl font-bold">
                 Game Over! Your CPS: {cps}
               </div>
               <Button
-                onClick={resetGame}
+                onClick={() => setShowResultModal(true)}
                 size="lg"
                 className="w-full text-xl py-6 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600"
               >
@@ -160,6 +172,53 @@ export default function CPSClicker() {
           )}
         </div>
       </div>
+
+      {/* Result Modal */}
+      {showResultModal && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-gradient-to-br from-purple-900 to-pink-900 rounded-2xl p-12 border-4 border-yellow-400 shadow-2xl text-center space-y-6 max-w-md w-full mx-4 animate-bounce">
+            <button
+              onClick={() => setShowResultModal(false)}
+              className="absolute top-4 right-4 text-white hover:text-yellow-400"
+            >
+              <X className="h-6 w-6" />
+            </button>
+            
+            <h2 className="game-title text-4xl">RESULTS!</h2>
+            
+            <div className="space-y-4">
+              <div className="bg-white/10 backdrop-blur rounded-xl p-6">
+                <div className="text-5xl font-bold text-yellow-400 mb-2">{cps}</div>
+                <div className="text-2xl text-white">CPS</div>
+              </div>
+              
+              <div className="bg-white/10 backdrop-blur rounded-xl p-4">
+                <div className="text-3xl font-bold text-cyan-400">{clicks}</div>
+                <div className="text-lg text-white">Total Clicks</div>
+              </div>
+
+              <div className="space-y-3 pt-4">
+                <Button
+                  onClick={resetGame}
+                  size="lg"
+                  className="game-button w-full text-2xl py-6 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-400 hover:to-emerald-400 font-bold"
+                >
+                  🔄 TRY AGAIN 🔄
+                </Button>
+                
+                <Button
+                  onClick={() => navigate("/")}
+                  size="lg"
+                  className="game-button w-full text-xl py-4 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-400 hover:to-cyan-400 font-bold"
+                >
+                  <Home className="mr-2 h-5 w-5" />
+                  Home
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

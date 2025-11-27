@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Gamepad2, MousePointerClick, Keyboard } from "lucide-react";
+import ParticleAura from "@/components/ParticleAura";
 
 export default function HomePage() {
   const navigate = useNavigate();
@@ -24,6 +25,8 @@ export default function HomePage() {
       >
         <source src="/videos/background.mp4" type="video/mp4" />
       </video>
+
+      <ParticleAura />
 
       <div className="absolute inset-0 bg-black/40" />
 
