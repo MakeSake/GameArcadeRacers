@@ -22,7 +22,9 @@ interface GameState {
   winner: Player | null;
 }
 
-const CAR_EMOJIS = ["🏎️", "🚗", "🚕"];
+type TrackType = 'desert' | 'night-city' | 'mountain';
+
+const CAR_EMOJIS = ["🏎️", "🚗", "🚕", "🚙", "🏍️", "🚓"];
 
 export default function MultiplayerRace() {
   const navigate = useNavigate();
@@ -39,6 +41,8 @@ export default function MultiplayerRace() {
   const [myPlayerId, setMyPlayerId] = useState("");
   const [showWinVideo, setShowWinVideo] = useState(false);
   const [winnerCarIndex, setWinnerCarIndex] = useState(0);
+  const [selectedTrack, setSelectedTrack] = useState<TrackType>('desert');
+  const [showTrackSelect, setShowTrackSelect] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const [bgVideo] = useState(() => {
     const videoIndex = Math.floor(Math.random() * 7) + 1;
@@ -241,7 +245,7 @@ export default function MultiplayerRace() {
             <>
               <div className="mb-6">
                 <h3 className="text-xl font-bold mb-4">
-                  Players ({gameState.players.length}/3)
+                  Players ({gameState.players.length})
                 </h3>
                 <div className="space-y-2">
                   {gameState.players.map((player) => (
@@ -263,6 +267,34 @@ export default function MultiplayerRace() {
 
               {!gameState.isStarted && !gameState.winner && (
                 <div className="text-center space-y-4">
+                  <div className="flex justify-center gap-2 mb-4">
+                    <Button
+                      onClick={() => setShowTrackSelect(!showTrackSelect)}
+                      className="game-button px-4 py-2 bg-gradient-to-r from-yellow-500 to-orange-600 hover:from-yellow-400 hover:to-orange-500 text-white border-2 border-yellow-300 shadow-lg text-sm"
+                    >
+                      🛣️ {selectedTrack.toUpperCase()}
+                    </Button>
+                  </div>
+
+                  {showTrackSelect && (
+                    <div className="bg-black/90 backdrop-blur rounded-lg p-3 border border-white/30 w-48 mx-auto mb-4 space-y-2">
+                      {(['desert', 'night-city', 'mountain'] as TrackType[]).map(track => (
+                        <Button
+                          key={track}
+                          onClick={() => {
+                            setSelectedTrack(track);
+                            setShowTrackSelect(false);
+                          }}
+                          className={`w-full text-left justify-start text-sm ${selectedTrack === track ? 'bg-yellow-500 text-white' : 'bg-white/10 hover:bg-white/20'}`}
+                        >
+                          {track === 'desert' && '🏜️ Desert'}
+                          {track === 'night-city' && '🌃 Night City'}
+                          {track === 'mountain' && '⛰️ Mountain'}
+                        </Button>
+                      ))}
+                    </div>
+                  )}
+
                   <QRCodeScanner roomId={myPlayerId} isConnected={isConnected} />
                   <Button
                     onClick={startGame}
