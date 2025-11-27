@@ -180,7 +180,11 @@ export default function Race2D({ playerProgress, opponent1Progress, opponent2Pro
         width={TRACK_WIDTH}
         height={TRACK_HEIGHT}
         className="border-4 border-yellow-400 rounded-lg shadow-2xl"
-        style={{ maxWidth: '100%', height: 'auto' }}
+        style={{ 
+          width: '100%', 
+          height: '100%',
+          objectFit: 'contain'
+        }}
       />
     </div>
   );

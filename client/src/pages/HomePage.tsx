@@ -1,16 +1,24 @@
 import { useNavigate } from "react-router-dom";
+import { useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Gamepad2, MousePointerClick, Keyboard } from "lucide-react";
 
 export default function HomePage() {
   const navigate = useNavigate();
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.volume = 0.3;
+    }
+  }, []);
 
   return (
     <div className="relative w-full h-screen overflow-hidden">
       <video
+        ref={videoRef}
         autoPlay
         loop
-        muted
         playsInline
         className="absolute top-0 left-0 w-full h-full object-cover"
       >
