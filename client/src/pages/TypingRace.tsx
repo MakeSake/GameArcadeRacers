@@ -228,6 +228,7 @@ export default function TypingRace() {
             opponent2Progress={opponent2Progress}
             trackType={selectedTrack}
             trackShape={selectedShape}
+            playerCount={3}
           />
           
           {/* Difficulty & Track Selection Overlay */}
