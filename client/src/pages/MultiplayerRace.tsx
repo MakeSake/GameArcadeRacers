@@ -229,17 +229,19 @@ export default function MultiplayerRace() {
         </Button>
       </div>
 
-      <div className="flex flex-col items-center justify-start h-full text-white px-4 pt-4">
-        <div className="text-center mb-3">
-          <h1 className="game-title mb-1">
-            MULTIPLAYER RACE
-          </h1>
-          <p className="game-subtitle text-sm md:text-lg drop-shadow-md">
-            ⚡ RACE AGAINST OTHER PLAYERS ⚡
-          </p>
-        </div>
+      <div className={`flex flex-col items-center justify-start h-full text-white px-2 pt-2 ${gameState.isStarted ? 'pt-0' : 'pt-4'}`}>
+        {!gameState.isStarted && (
+          <div className="text-center mb-3">
+            <h1 className="game-title mb-1">
+              MULTIPLAYER RACE
+            </h1>
+            <p className="game-subtitle text-sm md:text-lg drop-shadow-md">
+              ⚡ RACE AGAINST OTHER PLAYERS ⚡
+            </p>
+          </div>
+        )}
 
-        <div className="bg-white/10 backdrop-blur-md rounded-2xl p-6 md:p-8 shadow-2xl border border-white/20 mb-4 w-full max-w-4xl max-h-[calc(100vh-120px)] overflow-y-auto">
+        <div className={`bg-white/10 backdrop-blur-md rounded-lg shadow-2xl border border-white/20 w-full ${gameState.isStarted ? 'h-full p-2' : 'max-w-4xl p-6 md:p-8 mb-4'}`}>
           {!isConnected ? (
             <div className="text-center space-y-6">
               <Users className="mx-auto h-16 w-16 text-blue-400" />
@@ -332,8 +334,8 @@ export default function MultiplayerRace() {
               )}
 
               {gameState.isStarted && (
-                <div className="flex flex-col gap-1 h-full">
-                  <div className="bg-gradient-to-b from-sky-600 via-blue-700 to-slate-800 rounded-lg overflow-hidden shadow-xl border-2 border-yellow-400 h-40">
+                <div className="flex flex-col gap-2 h-full">
+                  <div className="bg-gradient-to-b from-sky-600 via-blue-700 to-slate-800 rounded-lg overflow-hidden shadow-xl border-4 border-yellow-400 h-1/2">
                     <Race2D 
                       playerProgress={gameState.players.find(p => p.id === myPlayerId)?.progress || 0}
                       opponent1Progress={gameState.players[1]?.progress || 0}
@@ -344,7 +346,7 @@ export default function MultiplayerRace() {
                     />
                   </div>
 
-                  <div className="bg-white/5 rounded p-1 font-mono text-xs leading-tight line-clamp-2">
+                  <div className="bg-white/5 rounded p-2 font-mono text-sm leading-snug line-clamp-3">
                     {gameState.targetText.split("").map((char, index) => {
                       let className = "text-white/50";
                       if (index < userInput.length) {
@@ -363,21 +365,21 @@ export default function MultiplayerRace() {
                     type="text"
                     value={userInput}
                     onChange={handleInputChange}
-                    className="w-full text-xs py-1 px-2 bg-white/90 text-black"
+                    className="w-full text-sm py-2 px-3 bg-white/90 text-black font-semibold"
                     placeholder="Start typing here..."
                     disabled={!!gameState.winner}
                     autoFocus
                   />
 
-                  <div className="space-y-1 flex-1 overflow-hidden">
+                  <div className="space-y-2 flex-1 overflow-hidden">
                     {gameState.players.map((player) => (
-                      <div key={player.id} className="relative h-8 bg-white/5 rounded overflow-hidden text-xs">
-                        <div className="absolute left-1 top-1/2 -translate-y-1/2 font-semibold z-10 truncate max-w-[60%]">
+                      <div key={player.id} className="relative h-14 bg-white/5 rounded overflow-hidden text-sm font-semibold">
+                        <div className="absolute left-2 top-1/2 -translate-y-1/2 z-10 truncate max-w-[50%]">
                           {player.name}
                         </div>
                         <div
-                          className="absolute top-1/2 -translate-y-1/2 transition-all duration-300 text-lg"
-                          style={{ left: `calc(${player.progress}% - 15px)` }}
+                          className="absolute top-1/2 -translate-y-1/2 transition-all duration-300 text-2xl"
+                          style={{ left: `calc(${player.progress}% - 20px)` }}
                         >
                           {CAR_EMOJIS[player.carIndex]}
                         </div>
