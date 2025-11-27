@@ -37,7 +37,9 @@ export default function TypingRace() {
   const [selectedShape, setSelectedShape] = useState<TrackShape>('straight');
   const [showShapeSelect, setShowShapeSelect] = useState(false);
   const [device, setDevice] = useState(detectDevice());
+  const [difficulty, setDifficulty] = useState<'normal' | 'hard'>('normal');
   const inputRef = useRef<HTMLInputElement>(null);
+  const bgVideoRef = useRef<HTMLVideoElement>(null);
   const [bgVideo] = useState(() => {
     const videoIndex = Math.floor(Math.random() * 7) + 1;
     return `/videos/wide_${videoIndex}.mp4`;
@@ -65,8 +67,11 @@ export default function TypingRace() {
   useEffect(() => {
     if (isPlaying && !isFinished) {
       const interval = setInterval(() => {
+        const speed = difficulty === 'hard' ? 2 : 0.3;
+        const speed2 = difficulty === 'hard' ? 1.8 : 0.25;
+        
         setOpponent1Progress(prev => {
-          const newVal = prev + Math.random() * 2;
+          const newVal = prev + Math.random() * speed;
           if (newVal >= 100 && winner === null) {
             handleFinish('opponent1');
           }
@@ -74,7 +79,7 @@ export default function TypingRace() {
         });
 
         setOpponent2Progress(prev => {
-          const newVal = prev + Math.random() * 1.8;
+          const newVal = prev + Math.random() * speed2;
           if (newVal >= 100 && winner === null) {
             handleFinish('opponent2');
           }
@@ -84,22 +89,30 @@ export default function TypingRace() {
 
       return () => clearInterval(interval);
     }
-  }, [isPlaying, isFinished, winner]);
+  }, [isPlaying, isFinished, winner, difficulty]);
 
   const handleFinish = (finishedBy: 'player' | 'opponent1' | 'opponent2') => {
     if (!isFinished && winner === null) {
       setIsFinished(true);
       setIsPlaying(false);
       setWinner(finishedBy);
-      setShowWinVideo(true);
       const end = Date.now();
       setEndTime(end);
 
-      if (finishedBy === 'player' && startTime) {
-        const timeInMinutes = (end - startTime) / 1000 / 60;
-        const words = targetText.split(" ").length;
-        const calculatedWpm = Math.round(words / timeInMinutes);
-        setWpm(calculatedWpm);
+      if (finishedBy === 'player') {
+        // Mute background video when player wins
+        if (bgVideoRef.current) {
+          bgVideoRef.current.volume = 0;
+        }
+        // Show win video only when player wins
+        setShowWinVideo(true);
+        
+        if (startTime) {
+          const timeInMinutes = (end - startTime) / 1000 / 60;
+          const words = targetText.split(" ").length;
+          const calculatedWpm = Math.round(words / timeInMinutes);
+          setWpm(calculatedWpm);
+        }
       }
     }
   };
@@ -137,6 +150,10 @@ export default function TypingRace() {
     setShowWinVideo(false);
     setWinner(null);
     setShowTrackSelect(false);
+    // Restore background video volume
+    if (bgVideoRef.current) {
+      bgVideoRef.current.volume = 1;
+    }
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -148,6 +165,7 @@ export default function TypingRace() {
   return (
     <div className="relative w-full h-screen overflow-hidden">
       <video
+        ref={bgVideoRef}
         autoPlay
         loop
         playsInline
@@ -212,9 +230,20 @@ export default function TypingRace() {
             trackShape={selectedShape}
           />
           
-          {/* Track Selection Overlay */}
+          {/* Difficulty & Track Selection Overlay */}
           {!isPlaying && !isFinished && (
-            <div className="absolute top-4 right-4 z-20 flex gap-2">
+            <div className="absolute top-4 right-4 z-20 flex gap-2 flex-wrap justify-end">
+              <Button
+                onClick={() => setDifficulty(difficulty === 'normal' ? 'hard' : 'normal')}
+                className={`game-button px-4 py-2 text-white border-2 shadow-lg text-sm ${
+                  difficulty === 'hard' 
+                    ? 'bg-gradient-to-r from-red-600 to-red-700 border-red-300 hover:from-red-500 hover:to-red-600' 
+                    : 'bg-gradient-to-r from-green-500 to-green-600 border-green-300 hover:from-green-400 hover:to-green-500'
+                }`}
+              >
+                ⚡ {difficulty.toUpperCase()}
+              </Button>
+              
               <Button
                 onClick={() => setShowTrackSelect(!showTrackSelect)}
                 className="game-button px-4 py-2 bg-gradient-to-r from-yellow-500 to-orange-600 hover:from-yellow-400 hover:to-orange-500 text-white border-2 border-yellow-300 shadow-lg text-sm"
@@ -345,24 +374,42 @@ export default function TypingRace() {
           </div>
         )}
 
-        {isFinished && (
+        {isFinished && winner !== 'player' && (
+          <div className="bg-red-600/40 backdrop-blur-md rounded-xl p-8 border-4 border-red-400 text-center space-y-4">
+            <div className="text-8xl">😭</div>
+            <h2 className="text-4xl font-bold text-red-300">
+              TOO WEAK!
+            </h2>
+            <p className="text-3xl text-red-200 font-mono">
+              It would take you 200 YEARS to win...
+            </p>
+            <Button
+              onClick={resetGame}
+              size="lg"
+              className="game-button text-xl py-6 px-12 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 font-bold shadow-lg hover:shadow-cyan-500/50"
+            >
+              <RotateCcw className="mr-2 h-5 w-5" />
+              TRY AGAIN
+            </Button>
+          </div>
+        )}
+
+        {isFinished && winner === 'player' && (
           <div className="bg-white/10 backdrop-blur-md rounded-xl p-8 border-4 border-yellow-400 text-center space-y-4">
             <Trophy className="mx-auto h-20 w-20 text-yellow-400" />
             <h2 className="text-4xl font-bold">
-              {winner === 'player' ? '🎉 YOU WIN! 🎉' : '❌ RACE LOST'}
+              🎉 YOU WIN! 🎉
             </h2>
-            {winner === 'player' && (
-              <div className="grid grid-cols-2 gap-4 my-6">
-                <div className="bg-white/10 rounded-lg p-4">
-                  <div className="text-4xl font-bold text-green-400">{wpm}</div>
-                  <div className="text-sm text-gray-300">WPM</div>
-                </div>
-                <div className="bg-white/10 rounded-lg p-4">
-                  <div className="text-4xl font-bold text-green-400">{accuracy}%</div>
-                  <div className="text-sm text-gray-300">Accuracy</div>
-                </div>
+            <div className="grid grid-cols-2 gap-4 my-6">
+              <div className="bg-white/10 rounded-lg p-4">
+                <div className="text-4xl font-bold text-green-400">{wpm}</div>
+                <div className="text-sm text-gray-300">WPM</div>
               </div>
-            )}
+              <div className="bg-white/10 rounded-lg p-4">
+                <div className="text-4xl font-bold text-green-400">{accuracy}%</div>
+                <div className="text-sm text-gray-300">Accuracy</div>
+              </div>
+            </div>
             <Button
               onClick={resetGame}
               size="lg"
