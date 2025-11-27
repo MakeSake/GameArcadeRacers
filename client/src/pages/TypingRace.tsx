@@ -158,7 +158,7 @@ export default function TypingRace() {
               onEnded={() => setShowWinVideo(false)}
               className="w-full h-full object-contain"
             >
-              <source src={winner === 'player' ? getWinVideo() : '/videos/win3.mp4'} type="video/mp4" />
+              <source src={getWinVideo()} type="video/mp4" />
             </video>
             <Button
               onClick={() => setShowWinVideo(false)}
