@@ -208,7 +208,13 @@ export default function MultiplayerRace() {
           <div className="relative w-full h-full flex items-center justify-center">
             <video
               autoPlay
-              onEnded={() => setShowWinVideo(false)}
+              onEnded={() => {
+                setShowWinVideo(false);
+                // Restore background audio when win video ends
+                if (videoRef.current) {
+                  videoRef.current.volume = 0.8;
+                }
+              }}
               className="w-full h-full object-contain"
             >
               <source src={getWinVideo()} type="video/mp4" />
@@ -222,7 +228,13 @@ export default function MultiplayerRace() {
               </div>
             </div>
             <Button
-              onClick={() => setShowWinVideo(false)}
+              onClick={() => {
+                setShowWinVideo(false);
+                // Restore background audio when skip is clicked
+                if (videoRef.current) {
+                  videoRef.current.volume = 0.8;
+                }
+              }}
               className="game-button absolute top-4 right-4 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-400 hover:to-red-500 text-white border-2 border-white"
             >
               ✕ Skip
