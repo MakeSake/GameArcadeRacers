@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Home, Users, Trophy, Volume2, VolumeX } from "lucide-react";
 import { io, Socket } from "socket.io-client";
 import QRCodeScanner from "@/components/QRCodeScanner";
-import Race2D from "@/components/Race2D";
+import MultiplayerRace2D from "@/components/MultiplayerRace2D";
 import { getWinVideo } from "@/utils/deviceDetection";
 
 interface Player {
@@ -359,7 +359,15 @@ export default function MultiplayerRace() {
 
               {gameState.isStarted && !gameState.winner && (
                 <div className="flex flex-col gap-3 h-full w-full">
-                  <div className="bg-white/5 rounded p-2 font-mono text-base leading-relaxed line-clamp-2">
+                  <div className="bg-gradient-to-b from-sky-600 via-blue-700 to-slate-800 rounded-lg overflow-hidden shadow-2xl border-4 border-yellow-400 h-2/5">
+                    <MultiplayerRace2D
+                      players={gameState.players}
+                      trackType={selectedTrack}
+                      trackShape="curved"
+                    />
+                  </div>
+
+                  <div className="bg-white/5 rounded p-2 font-mono text-sm leading-relaxed line-clamp-2">
                     {gameState.targetText.split("").map((char, index) => {
                       let className = "text-white/50";
                       if (index < userInput.length) {
@@ -383,15 +391,15 @@ export default function MultiplayerRace() {
                     autoFocus
                   />
 
-                  <div className="space-y-2 flex-1 overflow-y-auto">
+                  <div className="space-y-1 flex-1 overflow-y-auto">
                     {gameState.players.map((player) => (
-                      <div key={player.id} className="relative h-16 bg-white/5 rounded overflow-hidden text-sm font-bold">
-                        <div className="absolute left-2 top-1/2 -translate-y-1/2 z-10 truncate max-w-[50%]">
+                      <div key={player.id} className="relative h-12 bg-white/5 rounded overflow-hidden text-xs font-bold">
+                        <div className="absolute left-2 top-1/2 -translate-y-1/2 z-10 truncate max-w-[40%]">
                           {player.name}
                         </div>
                         <div
-                          className="absolute top-1/2 -translate-y-1/2 transition-all duration-300 text-3xl"
-                          style={{ left: `calc(${player.progress}% - 20px)` }}
+                          className="absolute top-1/2 -translate-y-1/2 transition-all duration-300 text-2xl"
+                          style={{ left: `calc(${player.progress}% - 16px)` }}
                         >
                           {CAR_EMOJIS[player.carIndex]}
                         </div>
