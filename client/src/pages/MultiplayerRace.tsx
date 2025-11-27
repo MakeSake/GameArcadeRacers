@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Home, Users, Trophy, Volume2, VolumeX, Medal } from "lucide-react";
 import { io, Socket } from "socket.io-client";
 import QRCodeScanner from "@/components/QRCodeScanner";
+import Race2D from "@/components/Race2D";
 import { getWinVideo } from "@/utils/deviceDetection";
 
 interface Player {
@@ -359,8 +360,19 @@ export default function MultiplayerRace() {
               )}
 
               {gameState.isStarted && !gameState.winner && (
-                <div className="flex flex-col gap-3 h-full w-full">
-                  <div className="bg-white/5 rounded p-2 font-mono text-base leading-relaxed line-clamp-3">
+                <div className="flex flex-col gap-2 h-full w-full">
+                  <div className="bg-gradient-to-b from-sky-600 via-blue-700 to-slate-800 rounded-lg overflow-hidden shadow-2xl border-4 border-yellow-400 h-2/5">
+                    <Race2D
+                      playerProgress={gameState.players[0]?.progress || 0}
+                      opponent1Progress={gameState.players[1]?.progress || 0}
+                      opponent2Progress={gameState.players[2]?.progress || 0}
+                      trackType={selectedTrack}
+                      trackShape="curved"
+                      playerCount={gameState.players.length}
+                    />
+                  </div>
+
+                  <div className="bg-white/5 rounded p-2 font-mono text-sm leading-relaxed line-clamp-3">
                     {gameState.targetText.split("").map((char, index) => {
                       let className = "text-white/50";
                       if (index < userInput.length) {
@@ -384,20 +396,17 @@ export default function MultiplayerRace() {
                     autoFocus
                   />
 
-                  <div className="space-y-2 flex-1 overflow-y-auto">
+                  <div className="space-y-1 flex-1 overflow-y-auto">
                     {gameState.players.map((player) => (
-                      <div key={player.id} className="relative h-14 bg-white/5 rounded overflow-hidden text-sm font-bold">
+                      <div key={player.id} className="relative h-12 bg-white/5 rounded overflow-hidden text-xs font-bold">
                         <div className="absolute left-2 top-1/2 -translate-y-1/2 z-10 truncate max-w-[50%]">
                           {player.name}
                         </div>
                         <div
-                          className="absolute top-1/2 -translate-y-1/2 transition-all duration-300 text-3xl"
-                          style={{ left: `calc(${player.progress}% - 20px)` }}
+                          className="absolute top-1/2 -translate-y-1/2 transition-all duration-300 text-2xl"
+                          style={{ left: `calc(${player.progress}% - 18px)` }}
                         >
                           {CAR_EMOJIS[player.carIndex]}
-                        </div>
-                        <div className="absolute right-3 top-1/2 -translate-y-1/2 text-white/70">
-                          {Math.round(player.progress)}%
                         </div>
                         <div className="absolute right-0 top-0 w-1 h-full bg-yellow-400" />
                       </div>
@@ -451,7 +460,7 @@ export default function MultiplayerRace() {
                                 </div>
                               </div>
                               <div className="text-right">
-                                <p className="text-lg text-yellow-300">{wpm} WPM</p>
+                                <p className="text-lg font-bold text-yellow-300">{isNaN(wpm) ? '0' : wpm} WPM</p>
                               </div>
                             </div>
                           </div>
