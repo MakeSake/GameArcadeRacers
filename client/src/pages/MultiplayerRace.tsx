@@ -103,10 +103,11 @@ export default function MultiplayerRace() {
           ...prev,
           winner,
         }));
-        // Mute background video when winner is shown
+        // Mute background video when showing win video
         if (videoRef.current) {
           videoRef.current.volume = 0;
         }
+        setShowWinVideo(true);
         setWinnerCarIndex(winner.carIndex);
       }
     });
@@ -161,6 +162,7 @@ export default function MultiplayerRace() {
     if (socket) {
       socket.emit("resetGame");
       setUserInput("");
+      setShowWinVideo(false);
       // Restore background video volume
       if (videoRef.current) {
         videoRef.current.volume = 0.8;
@@ -211,8 +213,13 @@ export default function MultiplayerRace() {
             >
               <source src={getWinVideo()} type="video/mp4" />
             </video>
-            <div className="absolute top-4 left-1/2 -translate-x-1/2 text-white text-3xl font-bold bg-black/70 px-6 py-3 rounded-lg game-title">
-              {gameState.winner?.name} WINS! 🏆
+            <div className="absolute top-8 left-1/2 -translate-x-1/2 text-white bg-black/80 px-8 py-6 rounded-lg game-title text-center space-y-3">
+              <div className="text-5xl font-bold text-yellow-300">
+                {gameState.winner?.name}
+              </div>
+              <div className="text-4xl font-bold">
+                WINS! 🏆
+              </div>
             </div>
             <Button
               onClick={() => setShowWinVideo(false)}
