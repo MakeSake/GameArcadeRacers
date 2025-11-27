@@ -176,11 +176,11 @@ export default function TypingRace() {
         <div className="text-center mb-6">
           <h1 className="text-4xl md:text-6xl font-bold mb-2 drop-shadow-lg flex items-center justify-center gap-2">
             <Zap className="text-yellow-400" />
-            ASPHALT 8 TYPING RACE
+            TURBO RACE CHAMPIONS
             <Zap className="text-yellow-400" />
           </h1>
-          <p className="text-lg md:text-xl drop-shadow-md text-gray-300">
-            Type Fast to Move Your Car Forward - Beat the Competition!
+          <p className="text-lg md:text-xl drop-shadow-md text-yellow-300 font-bold">
+            🏁 TYPE FAST TO ACCELERATE! BEAT THE AI! 🏁
           </p>
         </div>
 
