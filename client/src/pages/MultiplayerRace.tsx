@@ -360,19 +360,8 @@ export default function MultiplayerRace() {
               )}
 
               {gameState.isStarted && !gameState.winner && (
-                <div className="flex flex-col gap-2 h-full w-full">
-                  <div className="bg-gradient-to-b from-sky-600 via-blue-700 to-slate-800 rounded-lg overflow-hidden shadow-2xl border-4 border-yellow-400 h-2/5">
-                    <Race2D
-                      playerProgress={gameState.players[0]?.progress || 0}
-                      opponent1Progress={gameState.players[1]?.progress || 0}
-                      opponent2Progress={gameState.players[2]?.progress || 0}
-                      trackType={selectedTrack}
-                      trackShape="curved"
-                      playerCount={gameState.players.length}
-                    />
-                  </div>
-
-                  <div className="bg-white/5 rounded p-2 font-mono text-sm leading-relaxed line-clamp-3">
+                <div className="flex flex-col gap-1 h-full w-full">
+                  <div className="bg-white/5 rounded p-1 font-mono text-xs leading-relaxed line-clamp-2">
                     {gameState.targetText.split("").map((char, index) => {
                       let className = "text-white/50";
                       if (index < userInput.length) {
@@ -391,20 +380,31 @@ export default function MultiplayerRace() {
                     type="text"
                     value={userInput}
                     onChange={handleInputChange}
-                    className="w-full text-lg py-3 px-4 bg-white/90 text-black font-bold"
-                    placeholder="Start typing here..."
+                    className="w-full text-sm py-2 px-3 bg-white/90 text-black font-bold"
+                    placeholder="Type here..."
                     autoFocus
                   />
 
-                  <div className="space-y-1 flex-1 overflow-y-auto">
+                  <div className="bg-gradient-to-b from-sky-600 via-blue-700 to-slate-800 rounded-lg overflow-hidden shadow-2xl border-4 border-yellow-400 flex-1">
+                    <Race2D
+                      playerProgress={gameState.players[0]?.progress || 0}
+                      opponent1Progress={gameState.players[1]?.progress || 0}
+                      opponent2Progress={gameState.players[2]?.progress || 0}
+                      trackType={selectedTrack}
+                      trackShape="curved"
+                      playerCount={gameState.players.length}
+                    />
+                  </div>
+
+                  <div className="space-y-1 max-h-16 overflow-y-auto">
                     {gameState.players.map((player) => (
-                      <div key={player.id} className="relative h-12 bg-white/5 rounded overflow-hidden text-xs font-bold">
+                      <div key={player.id} className="relative h-10 bg-white/5 rounded overflow-hidden text-xs font-bold">
                         <div className="absolute left-2 top-1/2 -translate-y-1/2 z-10 truncate max-w-[50%]">
                           {player.name}
                         </div>
                         <div
-                          className="absolute top-1/2 -translate-y-1/2 transition-all duration-300 text-2xl"
-                          style={{ left: `calc(${player.progress}% - 18px)` }}
+                          className="absolute top-1/2 -translate-y-1/2 transition-all duration-300 text-xl"
+                          style={{ left: `calc(${player.progress}% - 15px)` }}
                         >
                           {CAR_EMOJIS[player.carIndex]}
                         </div>
