@@ -13,6 +13,8 @@ const SAMPLE_TEXTS = [
   "turbocharged engines roar as champions race for glory"
 ];
 
+type TrackType = 'asphalt' | 'desert' | 'night-city' | 'mountain';
+
 export default function TypingRace() {
   const navigate = useNavigate();
   const [targetText, setTargetText] = useState("");
@@ -28,6 +30,8 @@ export default function TypingRace() {
   const [accuracy, setAccuracy] = useState(100);
   const [showWinVideo, setShowWinVideo] = useState(false);
   const [winner, setWinner] = useState<'player' | 'opponent1' | 'opponent2' | null>(null);
+  const [selectedTrack, setSelectedTrack] = useState<TrackType>('asphalt');
+  const [showTrackSelect, setShowTrackSelect] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -123,6 +127,7 @@ export default function TypingRace() {
     setAccuracy(100);
     setShowWinVideo(false);
     setWinner(null);
+    setShowTrackSelect(false);
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -185,14 +190,46 @@ export default function TypingRace() {
         </div>
 
         {/* 3D Racing Scene */}
-        <div className="flex-1 bg-gradient-to-b from-sky-600 via-blue-700 to-slate-800 rounded-2xl overflow-hidden shadow-2xl border-4 border-yellow-400 mb-6">
+        <div className="flex-1 bg-gradient-to-b from-sky-600 via-blue-700 to-slate-800 rounded-2xl overflow-hidden shadow-2xl border-4 border-yellow-400 mb-6 relative">
           <Suspense fallback={<div className="w-full h-full flex items-center justify-center text-xl">🏁 Loading Race Track...</div>}>
             <RaceTrack3D 
               playerProgress={playerProgress}
               opponent1Progress={opponent1Progress}
               opponent2Progress={opponent2Progress}
+              trackType={selectedTrack}
             />
           </Suspense>
+          
+          {/* Track Selection Overlay */}
+          {!isPlaying && !isFinished && (
+            <div className="absolute top-4 right-4 z-20">
+              <Button
+                onClick={() => setShowTrackSelect(!showTrackSelect)}
+                className="bg-white/20 backdrop-blur text-white border border-white/30 hover:bg-white/30"
+              >
+                🛣️ {selectedTrack.toUpperCase()}
+              </Button>
+              {showTrackSelect && (
+                <div className="absolute top-12 right-0 bg-black/80 backdrop-blur rounded-lg p-3 border border-white/30 w-48 space-y-2">
+                  {(['asphalt', 'desert', 'night-city', 'mountain'] as TrackType[]).map(track => (
+                    <Button
+                      key={track}
+                      onClick={() => {
+                        setSelectedTrack(track);
+                        setShowTrackSelect(false);
+                      }}
+                      className={`w-full text-left justify-start ${selectedTrack === track ? 'bg-yellow-500' : 'bg-white/10 hover:bg-white/20'}`}
+                    >
+                      {track === 'asphalt' && '🏁 Asphalt'}
+                      {track === 'desert' && '🏜️ Desert'}
+                      {track === 'night-city' && '🌃 Night City'}
+                      {track === 'mountain' && '⛰️ Mountain'}
+                    </Button>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Race Info */}

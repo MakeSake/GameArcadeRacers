@@ -3,19 +3,37 @@ import { PerspectiveCamera, Environment } from '@react-three/drei';
 import { Suspense } from 'react';
 import * as THREE from 'three';
 import RacingCar from './RacingCar';
-import TrackEnvironment from './TrackEnvironment';
+import AsphaltTrack from './tracks/AsphaltTrack';
+import DesertTrack from './tracks/DesertTrack';
+import NightCityTrack from './tracks/NightCityTrack';
+import MountainTrack from './tracks/MountainTrack';
 
 interface RaceTrack3DProps {
   playerProgress: number;
   opponent1Progress?: number;
   opponent2Progress?: number;
+  trackType?: 'asphalt' | 'desert' | 'night-city' | 'mountain';
 }
 
-export default function RaceTrack3D({ playerProgress, opponent1Progress = 0, opponent2Progress = 0 }: RaceTrack3DProps) {
+export default function RaceTrack3D({ playerProgress, opponent1Progress = 0, opponent2Progress = 0, trackType = 'asphalt' }: RaceTrack3DProps) {
   // 50 meter track - convert progress (0-100) to meters (0-50) and then to scene units
   const playerDistance = (playerProgress / 100) * 50 - 25;
   const opponent1Distance = (opponent1Progress / 100) * 50 - 25;
   const opponent2Distance = (opponent2Progress / 100) * 50 - 25;
+
+  const renderTrack = () => {
+    switch (trackType) {
+      case 'desert':
+        return <DesertTrack />;
+      case 'night-city':
+        return <NightCityTrack />;
+      case 'mountain':
+        return <MountainTrack />;
+      case 'asphalt':
+      default:
+        return <AsphaltTrack />;
+    }
+  };
 
   return (
     <div className="w-full h-full">
@@ -37,7 +55,7 @@ export default function RaceTrack3D({ playerProgress, opponent1Progress = 0, opp
           <Environment preset="sunset" />
           
           {/* Track */}
-          <TrackEnvironment />
+          {renderTrack()}
           
           {/* Player Car - Red - moves based on typing */}
           <RacingCar 
