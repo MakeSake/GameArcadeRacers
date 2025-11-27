@@ -161,11 +161,11 @@ export default function TypingRace() {
         </div>
       )}
 
-      <div className="absolute top-4 left-4 z-10">
+      <div className="absolute top-4 left-4 z-50">
         <Button
           onClick={() => navigate("/")}
           variant="outline"
-          className="bg-white/10 backdrop-blur-sm text-white border-white/20 hover:bg-white/20"
+          className="bg-white/10 backdrop-blur-sm text-white border-white/20 hover:bg-white/20 hover:text-white cursor-pointer"
         >
           <Home className="mr-2 h-4 w-4" />
           Home
