@@ -83,7 +83,7 @@ export default function CPSClicker() {
         autoPlay
         loop
         muted
-        className="absolute inset-0 w-full h-full object-cover opacity-20 -z-10"
+        className="absolute inset-0 w-full h-full object-cover opacity-50 -z-10"
       >
         <source src={getRandomWideVideo()} type="video/mp4" />
       </video>
