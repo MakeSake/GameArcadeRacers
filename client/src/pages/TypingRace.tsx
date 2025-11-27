@@ -1,9 +1,9 @@
-import { useState, useEffect, useCallback, useRef, Suspense } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Home, RotateCcw, Trophy, Zap } from "lucide-react";
-import RaceTrack3D from "@/components/RaceTrack3D";
+import Race2D from "@/components/Race2D";
 
 const SAMPLE_TEXTS = [
   "speed is everything in racing fast reflexes win championships",
@@ -189,16 +189,14 @@ export default function TypingRace() {
           </p>
         </div>
 
-        {/* 3D Racing Scene */}
+        {/* 2D Racing Scene */}
         <div className="flex-1 bg-gradient-to-b from-sky-600 via-blue-700 to-slate-800 rounded-2xl overflow-hidden shadow-2xl border-4 border-yellow-400 mb-6 relative">
-          <Suspense fallback={<div className="w-full h-full flex items-center justify-center text-xl">🏁 Loading Race Track...</div>}>
-            <RaceTrack3D 
-              playerProgress={playerProgress}
-              opponent1Progress={opponent1Progress}
-              opponent2Progress={opponent2Progress}
-              trackType={selectedTrack}
-            />
-          </Suspense>
+          <Race2D 
+            playerProgress={playerProgress}
+            opponent1Progress={opponent1Progress}
+            opponent2Progress={opponent2Progress}
+            trackType={selectedTrack}
+          />
           
           {/* Track Selection Overlay */}
           {!isPlaying && !isFinished && (
