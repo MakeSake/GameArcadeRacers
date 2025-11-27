@@ -12,22 +12,26 @@ interface RaceTrack3DProps {
 }
 
 export default function RaceTrack3D({ playerProgress, opponent1Progress = 0, opponent2Progress = 0 }: RaceTrack3DProps) {
+  // 50 meter track - convert progress (0-100) to distance (0-50)
+  const playerDistance = (playerProgress / 100) * 25 - 25;
+  const opponent1Distance = (opponent1Progress / 100) * 25 - 25;
+  const opponent2Distance = (opponent2Progress / 100) * 25 - 25;
+
   return (
     <div className="w-full h-full">
-      <Canvas shadows dpr={[1, 2]}>
+      <Canvas shadows dpr={[1, 1]}>
         <Suspense fallback={null}>
-          <PerspectiveCamera makeDefault position={[0, 6, 12]} fov={75} />
+          <PerspectiveCamera makeDefault position={[0, 5, 10]} fov={75} />
           
-          {/* Lighting */}
+          {/* Optimized Lighting */}
           <directionalLight 
-            position={[15, 30, 15]} 
-            intensity={1.4} 
+            position={[15, 20, 10]} 
+            intensity={1.2} 
             castShadow 
-            shadow-mapSize-width={2048}
-            shadow-mapSize-height={2048}
+            shadow-mapSize-width={1024}
+            shadow-mapSize-height={1024}
           />
-          <directionalLight position={[-10, 10, -10]} intensity={0.5} />
-          <ambientLight intensity={0.7} />
+          <ambientLight intensity={0.8} />
           
           {/* Environment */}
           <Environment preset="sunset" />
@@ -38,14 +42,14 @@ export default function RaceTrack3D({ playerProgress, opponent1Progress = 0, opp
           {/* Player Car - Red - moves based on typing */}
           <RacingCar 
             progress={playerProgress} 
-            position={[-8 + (playerProgress * 0.15), 0, 0]} 
+            position={[-6, 0, playerDistance]} 
             color="red"
           />
           
           {/* Opponent 1 - Blue */}
           <RacingCar 
             progress={opponent1Progress}
-            position={[-8 + (opponent1Progress * 0.15), 0, -4]} 
+            position={[0, 0, opponent1Distance]} 
             isOpponent 
             color="blue" 
           />
@@ -53,7 +57,7 @@ export default function RaceTrack3D({ playerProgress, opponent1Progress = 0, opp
           {/* Opponent 2 - Yellow */}
           <RacingCar 
             progress={opponent2Progress}
-            position={[-8 + (opponent2Progress * 0.15), 0, 4]} 
+            position={[6, 0, opponent2Distance]} 
             isOpponent 
             color="yellow" 
           />
