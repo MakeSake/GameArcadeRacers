@@ -2,15 +2,15 @@ import { useState, useEffect, useCallback, useRef, Suspense } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Home, RotateCcw, Trophy } from "lucide-react";
+import { Home, RotateCcw, Trophy, Zap } from "lucide-react";
 import RaceTrack3D from "@/components/RaceTrack3D";
 
 const SAMPLE_TEXTS = [
-  "The quick brown fox jumps over the lazy dog and runs through the forest.",
-  "Practice makes perfect when you type with accuracy and speed every single day.",
-  "Racing against time requires focus, determination, and lightning fast fingers.",
-  "Champions are made through dedication, practice, and never giving up on dreams.",
-  "Type like the wind and let your fingers dance across the keyboard smoothly."
+  "speed is everything in racing fast reflexes win championships",
+  "asphalt burns rubber flies high speeds demand pure skill",
+  "championship racing pushes cars to extreme limits today",
+  "victory awaits those who type with lightning fast speed",
+  "turbocharged engines roar as champions race for glory"
 ];
 
 export default function TypingRace() {
@@ -19,40 +19,70 @@ export default function TypingRace() {
   const [userInput, setUserInput] = useState("");
   const [isPlaying, setIsPlaying] = useState(false);
   const [isFinished, setIsFinished] = useState(false);
-  const [progress, setProgress] = useState(0);
+  const [playerProgress, setPlayerProgress] = useState(0);
+  const [opponent1Progress, setOpponent1Progress] = useState(0);
+  const [opponent2Progress, setOpponent2Progress] = useState(0);
   const [startTime, setStartTime] = useState<number | null>(null);
   const [endTime, setEndTime] = useState<number | null>(null);
   const [wpm, setWpm] = useState(0);
   const [accuracy, setAccuracy] = useState(100);
   const [showWinVideo, setShowWinVideo] = useState(false);
+  const [winner, setWinner] = useState<'player' | 'opponent1' | 'opponent2' | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (targetText) {
+    if (targetText && isPlaying) {
       const correctChars = userInput.split("").filter((char, index) => char === targetText[index]).length;
       const progressPercent = (correctChars / targetText.length) * 100;
-      setProgress(progressPercent);
+      setPlayerProgress(progressPercent);
 
       if (userInput.length > 0) {
         const accuracyPercent = (correctChars / userInput.length) * 100;
         setAccuracy(Math.round(accuracyPercent));
       }
 
-      if (correctChars === targetText.length && userInput === targetText) {
-        handleFinish();
+      // Check if player finished
+      if (correctChars === targetText.length && userInput === targetText && !isFinished) {
+        handleFinish('player');
       }
     }
-  }, [userInput, targetText]);
+  }, [userInput, targetText, isPlaying, isFinished]);
 
-  const handleFinish = () => {
-    if (!isFinished) {
-      const end = Date.now();
-      setEndTime(end);
+  // AI opponents progress simulation
+  useEffect(() => {
+    if (isPlaying && !isFinished) {
+      const interval = setInterval(() => {
+        setOpponent1Progress(prev => {
+          const newVal = prev + Math.random() * 2;
+          if (newVal >= 100 && winner === null) {
+            handleFinish('opponent1');
+          }
+          return Math.min(newVal, 100);
+        });
+
+        setOpponent2Progress(prev => {
+          const newVal = prev + Math.random() * 1.8;
+          if (newVal >= 100 && winner === null) {
+            handleFinish('opponent2');
+          }
+          return Math.min(newVal, 100);
+        });
+      }, 100);
+
+      return () => clearInterval(interval);
+    }
+  }, [isPlaying, isFinished, winner]);
+
+  const handleFinish = (finishedBy: 'player' | 'opponent1' | 'opponent2') => {
+    if (!isFinished && winner === null) {
       setIsFinished(true);
       setIsPlaying(false);
+      setWinner(finishedBy);
       setShowWinVideo(true);
+      const end = Date.now();
+      setEndTime(end);
 
-      if (startTime) {
+      if (finishedBy === 'player' && startTime) {
         const timeInMinutes = (end - startTime) / 1000 / 60;
         const words = targetText.split(" ").length;
         const calculatedWpm = Math.round(words / timeInMinutes);
@@ -67,12 +97,15 @@ export default function TypingRace() {
     setUserInput("");
     setIsPlaying(true);
     setIsFinished(false);
-    setProgress(0);
+    setPlayerProgress(0);
+    setOpponent1Progress(0);
+    setOpponent2Progress(0);
     setStartTime(Date.now());
     setEndTime(null);
     setWpm(0);
     setAccuracy(100);
     setShowWinVideo(false);
+    setWinner(null);
     setTimeout(() => inputRef.current?.focus(), 100);
   };
 
@@ -81,12 +114,15 @@ export default function TypingRace() {
     setUserInput("");
     setIsPlaying(false);
     setIsFinished(false);
-    setProgress(0);
+    setPlayerProgress(0);
+    setOpponent1Progress(0);
+    setOpponent2Progress(0);
     setStartTime(null);
     setEndTime(null);
     setWpm(0);
     setAccuracy(100);
     setShowWinVideo(false);
+    setWinner(null);
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -96,16 +132,23 @@ export default function TypingRace() {
   };
 
   return (
-    <div className="relative w-full h-screen bg-gradient-to-br from-blue-900 via-cyan-900 to-blue-800 overflow-hidden">
+    <div className="relative w-full h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 overflow-hidden">
+      {/* Animated background */}
+      <div className="absolute inset-0 opacity-10">
+        <div className="absolute top-0 left-0 w-96 h-96 bg-purple-600 rounded-full filter blur-3xl animate-blob" />
+        <div className="absolute top-0 right-0 w-96 h-96 bg-blue-600 rounded-full filter blur-3xl animate-blob animation-delay-2000" />
+        <div className="absolute bottom-0 left-1/2 w-96 h-96 bg-pink-600 rounded-full filter blur-3xl animate-blob animation-delay-4000" />
+      </div>
+
       {showWinVideo && (
-        <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/80">
+        <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/90">
           <div className="relative">
             <video
               autoPlay
               onEnded={() => setShowWinVideo(false)}
               className="max-w-full max-h-screen"
             >
-              <source src="/videos/win1.mp4" type="video/mp4" />
+              <source src={`/videos/win${winner === 'player' ? 1 : winner === 'opponent1' ? 2 : 3}.mp4`} type="video/mp4" />
             </video>
             <Button
               onClick={() => setShowWinVideo(false)}
@@ -118,7 +161,7 @@ export default function TypingRace() {
         </div>
       )}
 
-      <div className="absolute top-4 left-4">
+      <div className="absolute top-4 left-4 z-10">
         <Button
           onClick={() => navigate("/")}
           variant="outline"
@@ -129,49 +172,78 @@ export default function TypingRace() {
         </Button>
       </div>
 
-      <div className="flex flex-col items-center justify-center h-full text-white px-4">
-        <div className="text-center mb-8">
-          <h1 className="text-5xl md:text-7xl font-bold mb-4 drop-shadow-lg">
-            Typing Race
+      <div className="flex flex-col h-full p-4 md:p-8 text-white relative z-10">
+        <div className="text-center mb-6">
+          <h1 className="text-4xl md:text-6xl font-bold mb-2 drop-shadow-lg flex items-center justify-center gap-2">
+            <Zap className="text-yellow-400" />
+            ASPHALT 8 TYPING RACE
+            <Zap className="text-yellow-400" />
           </h1>
-          <p className="text-xl md:text-2xl drop-shadow-md">
-            Single Player Mode
+          <p className="text-lg md:text-xl drop-shadow-md text-gray-300">
+            Type Fast to Move Your Car Forward - Beat the Competition!
           </p>
         </div>
 
-        <div className="bg-white/10 backdrop-blur-md rounded-2xl p-8 md:p-12 shadow-2xl border border-white/20 mb-8 w-full max-w-4xl">
-          <div className="mb-6">
-            <div className="relative w-full h-4 bg-white/20 rounded-full overflow-hidden">
-              <div
-                className="absolute left-0 top-0 h-full bg-gradient-to-r from-green-500 to-emerald-500 transition-all duration-300"
-                style={{ width: `${progress}%` }}
-              />
+        {/* 3D Racing Scene */}
+        <div className="flex-1 bg-gradient-to-b from-sky-600 via-blue-700 to-slate-800 rounded-2xl overflow-hidden shadow-2xl border-4 border-yellow-400 mb-6">
+          <Suspense fallback={<div className="w-full h-full flex items-center justify-center text-xl">🏁 Loading Race Track...</div>}>
+            <RaceTrack3D 
+              playerProgress={playerProgress}
+              opponent1Progress={opponent1Progress}
+              opponent2Progress={opponent2Progress}
+            />
+          </Suspense>
+        </div>
+
+        {/* Race Info */}
+        {isPlaying && (
+          <div className="grid grid-cols-3 gap-4 mb-6">
+            <div className="bg-red-500/30 backdrop-blur rounded-lg p-4 border border-red-400">
+              <div className="text-sm text-gray-200">YOU (Red)</div>
+              <div className="text-3xl font-bold">{Math.round(playerProgress)}%</div>
+              <div className="w-full bg-black/30 h-2 rounded mt-2">
+                <div className="bg-red-500 h-full rounded transition-all" style={{ width: `${playerProgress}%` }} />
+              </div>
             </div>
-            <div className="flex justify-between mt-2 text-sm">
-              <span>Progress: {Math.round(progress)}%</span>
-              <span>Accuracy: {accuracy}%</span>
+            <div className="bg-blue-500/30 backdrop-blur rounded-lg p-4 border border-blue-400">
+              <div className="text-sm text-gray-200">OPPONENT 1 (Blue)</div>
+              <div className="text-3xl font-bold">{Math.round(opponent1Progress)}%</div>
+              <div className="w-full bg-black/30 h-2 rounded mt-2">
+                <div className="bg-blue-500 h-full rounded transition-all" style={{ width: `${opponent1Progress}%` }} />
+              </div>
+            </div>
+            <div className="bg-yellow-500/30 backdrop-blur rounded-lg p-4 border border-yellow-400">
+              <div className="text-sm text-gray-200">OPPONENT 2 (Yellow)</div>
+              <div className="text-3xl font-bold">{Math.round(opponent2Progress)}%</div>
+              <div className="w-full bg-black/30 h-2 rounded mt-2">
+                <div className="bg-yellow-500 h-full rounded transition-all" style={{ width: `${opponent2Progress}%` }} />
+              </div>
             </div>
           </div>
+        )}
 
-          {!isPlaying && !isFinished && (
-            <div className="text-center">
-              <Button
-                onClick={startGame}
-                size="lg"
-                className="text-xl py-6 px-12 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600"
-              >
-                Start Race
-              </Button>
-            </div>
-          )}
+        {/* Text to Type */}
+        {!isPlaying && !isFinished && (
+          <div className="text-center">
+            <Button
+              onClick={startGame}
+              size="lg"
+              className="text-2xl py-8 px-16 bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 font-bold"
+            >
+              🏁 START RACE 🏁
+            </Button>
+          </div>
+        )}
 
-          {isPlaying && (
-            <div>
-              <div className="bg-white/5 rounded-lg p-6 mb-4 font-mono text-lg leading-relaxed">
+        {isPlaying && (
+          <div className="space-y-4">
+            <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20">
+              <p className="text-lg font-mono text-gray-300 mb-2">TYPE THE TEXT TO MOVE YOUR CAR:</p>
+              <div className="bg-black/30 rounded-lg p-4 font-mono text-lg leading-relaxed mb-4">
                 {targetText.split("").map((char, index) => {
-                  let className = "text-white/50";
+                  let className = "text-gray-400";
                   if (index < userInput.length) {
-                    className = userInput[index] === char ? "text-green-400" : "text-red-400";
+                    className = userInput[index] === char ? "text-green-400 font-bold" : "text-red-400 font-bold";
                   }
                   return (
                     <span key={index} className={className}>
@@ -180,54 +252,51 @@ export default function TypingRace() {
                   );
                 })}
               </div>
-
               <Input
                 ref={inputRef}
                 type="text"
                 value={userInput}
                 onChange={handleInputChange}
-                className="w-full text-lg p-4 bg-white/90 text-black"
+                className="w-full text-lg p-4 bg-white/20 text-white placeholder-gray-400 border-2 border-yellow-400"
                 placeholder="Start typing here..."
                 autoFocus
               />
-
-              {/* 3D Racing Scene */}
-              <div className="mt-6 relative w-full h-96 bg-gradient-to-b from-sky-400 to-blue-600 rounded-lg overflow-hidden shadow-2xl border-4 border-yellow-400">
-                <Suspense fallback={<div className="w-full h-full flex items-center justify-center text-white">Loading Race Track...</div>}>
-                  <RaceTrack3D progress={progress} />
-                </Suspense>
-                <div className="absolute bottom-2 left-2 text-xs text-white font-mono bg-black/50 px-2 py-1 rounded">
-                  Progress: {Math.round(progress)}% | Speed: {Math.round(progress * 2)} km/h
-                </div>
+              <div className="mt-4 flex justify-between text-sm">
+                <span>Accuracy: <span className="text-green-400 font-bold">{accuracy}%</span></span>
+                <span>Progress: <span className="text-blue-400 font-bold">{Math.round(playerProgress)}%</span></span>
               </div>
             </div>
-          )}
+          </div>
+        )}
 
-          {isFinished && (
-            <div className="text-center space-y-4">
-              <Trophy className="mx-auto h-16 w-16 text-yellow-400" />
-              <h2 className="text-3xl font-bold">Race Complete!</h2>
-              <div className="grid grid-cols-2 gap-4">
+        {isFinished && (
+          <div className="bg-white/10 backdrop-blur-md rounded-xl p-8 border-4 border-yellow-400 text-center space-y-4">
+            <Trophy className="mx-auto h-20 w-20 text-yellow-400" />
+            <h2 className="text-4xl font-bold">
+              {winner === 'player' ? '🎉 YOU WIN! 🎉' : '❌ RACE LOST'}
+            </h2>
+            {winner === 'player' && (
+              <div className="grid grid-cols-2 gap-4 my-6">
                 <div className="bg-white/10 rounded-lg p-4">
-                  <div className="text-4xl font-bold">{wpm}</div>
-                  <div className="text-sm text-white/80">WPM</div>
+                  <div className="text-4xl font-bold text-green-400">{wpm}</div>
+                  <div className="text-sm text-gray-300">WPM</div>
                 </div>
                 <div className="bg-white/10 rounded-lg p-4">
-                  <div className="text-4xl font-bold">{accuracy}%</div>
-                  <div className="text-sm text-white/80">Accuracy</div>
+                  <div className="text-4xl font-bold text-green-400">{accuracy}%</div>
+                  <div className="text-sm text-gray-300">Accuracy</div>
                 </div>
               </div>
-              <Button
-                onClick={resetGame}
-                size="lg"
-                className="text-xl py-6 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600"
-              >
-                <RotateCcw className="mr-2 h-5 w-5" />
-                Race Again
-              </Button>
-            </div>
-          )}
-        </div>
+            )}
+            <Button
+              onClick={resetGame}
+              size="lg"
+              className="text-xl py-6 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 font-bold"
+            >
+              <RotateCcw className="mr-2 h-5 w-5" />
+              RACE AGAIN
+            </Button>
+          </div>
+        )}
       </div>
     </div>
   );
