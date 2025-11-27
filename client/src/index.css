@@ -186,3 +186,26 @@ video {
   animation: text3dRotate 6s ease-in-out infinite !important;
   transform-style: preserve-3d;
 }
+
+@keyframes text3dRotateReverse {
+  0% {
+    transform: perspective(1000px) rotateX(0deg) rotateY(0deg) rotateZ(0deg);
+  }
+  25% {
+    transform: perspective(1000px) rotateX(-5deg) rotateY(-10deg) rotateZ(-2deg);
+  }
+  50% {
+    transform: perspective(1000px) rotateX(0deg) rotateY(-20deg) rotateZ(0deg);
+  }
+  75% {
+    transform: perspective(1000px) rotateX(5deg) rotateY(-10deg) rotateZ(2deg);
+  }
+  100% {
+    transform: perspective(1000px) rotateX(0deg) rotateY(0deg) rotateZ(0deg);
+  }
+}
+
+.text-3d-rotate-reverse {
+  animation: text3dRotateReverse 6s ease-in-out infinite !important;
+  transform-style: preserve-3d;
+}

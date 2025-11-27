@@ -35,7 +35,7 @@ export default function HomePage() {
           <h1 className="game-title mb-4 text-3d-rotate">
             GAME HUB
           </h1>
-          <p className="game-subtitle text-xl md:text-2xl drop-shadow-md">
+          <p className="game-subtitle text-xl md:text-2xl drop-shadow-md text-3d-rotate-reverse">
             ⚡ CHOOSE YOUR CHALLENGE ⚡
           </p>
         </div>
