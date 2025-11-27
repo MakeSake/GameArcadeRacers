@@ -340,7 +340,7 @@ export default function MultiplayerRace() {
                 </div>
               )}
 
-              {gameState.isStarted && (
+              {gameState.isStarted && !gameState.winner && (
                 <div className="flex flex-col gap-3 h-full w-full">
                   <div className="bg-white/5 rounded p-2 font-mono text-base leading-relaxed line-clamp-2">
                     {gameState.targetText.split("").map((char, index) => {
@@ -363,7 +363,6 @@ export default function MultiplayerRace() {
                     onChange={handleInputChange}
                     className="w-full text-lg py-3 px-4 bg-white/90 text-black font-bold"
                     placeholder="Start typing here..."
-                    disabled={!!gameState.winner}
                     autoFocus
                   />
 
@@ -387,13 +386,13 @@ export default function MultiplayerRace() {
               )}
 
               {gameState.winner && (
-                <div className="text-center mt-6 space-y-3">
-                  <Trophy className="mx-auto h-16 w-16 text-yellow-400" />
-                  <div>
-                    <h2 className="text-4xl font-bold text-yellow-300">
+                <div className="flex flex-col items-center justify-center h-full w-full space-y-6">
+                  <Trophy className="h-24 w-24 text-yellow-400" />
+                  <div className="text-center space-y-2">
+                    <h2 className="text-5xl font-bold text-yellow-300">
                       {gameState.winner.name}
                     </h2>
-                    <p className="text-3xl font-bold mt-2">
+                    <p className="text-4xl font-bold text-white">
                       Wins! {CAR_EMOJIS[gameState.winner.carIndex]}
                     </p>
                   </div>
