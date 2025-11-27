@@ -158,16 +158,19 @@ export default function MultiplayerRace() {
   const canStart = gameState.players.length >= 1 && !gameState.isStarted;
 
   return (
-    <div className="relative w-full h-screen bg-gradient-to-br from-green-900 via-emerald-900 to-green-800 overflow-hidden">
+    <div className="relative w-full h-screen overflow-hidden">
       <video
         autoPlay
         loop
         muted
+        playsInline
         key={bgVideo}
-        className="absolute inset-0 w-full h-full object-cover opacity-75 -z-10"
+        className="absolute inset-0 w-full h-full object-cover"
       >
         <source src={bgVideo} type="video/mp4" />
       </video>
+
+      <div className="absolute inset-0 bg-black/40" />
       {showWinVideo && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90">
           <div className="relative w-full h-full flex items-center justify-center">

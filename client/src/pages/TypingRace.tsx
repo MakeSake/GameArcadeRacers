@@ -146,23 +146,19 @@ export default function TypingRace() {
   };
 
   return (
-    <div className="relative w-full h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 overflow-hidden">
+    <div className="relative w-full h-screen overflow-hidden">
       <video
         autoPlay
         loop
         muted
+        playsInline
         key={bgVideo}
-        className="absolute inset-0 w-full h-full object-cover opacity-75 -z-10"
+        className="absolute inset-0 w-full h-full object-cover"
       >
         <source src={bgVideo} type="video/mp4" />
       </video>
-      
-      {/* Animated background */}
-      <div className="absolute inset-0 opacity-10">
-        <div className="absolute top-0 left-0 w-96 h-96 bg-purple-600 rounded-full filter blur-3xl animate-blob" />
-        <div className="absolute top-0 right-0 w-96 h-96 bg-blue-600 rounded-full filter blur-3xl animate-blob animation-delay-2000" />
-        <div className="absolute bottom-0 left-1/2 w-96 h-96 bg-pink-600 rounded-full filter blur-3xl animate-blob animation-delay-4000" />
-      </div>
+
+      <div className="absolute inset-0 bg-black/40" />
 
       {showWinVideo && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90">
