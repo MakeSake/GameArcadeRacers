@@ -1,7 +1,7 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Home, RotateCcw, X } from "lucide-react";
+import { Home, RotateCcw, X, Volume2, VolumeX } from "lucide-react";
 
 type TimeOption = 1 | 10 | 60;
 
@@ -12,6 +12,8 @@ const getRandomWideVideo = () => {
 
 export default function CPSClicker() {
   const navigate = useNavigate();
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [isMuted, setIsMuted] = useState(false);
   const [score, setScore] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [selectedTime, setSelectedTime] = useState<TimeOption>(10);
@@ -20,6 +22,13 @@ export default function CPSClicker() {
   const [clicks, setClicks] = useState(0);
   const [showResultModal, setShowResultModal] = useState(false);
   const [bgVideo] = useState(getRandomWideVideo());
+
+  const toggleMute = () => {
+    if (videoRef.current) {
+      videoRef.current.volume = isMuted ? 0.8 : 0;
+      setIsMuted(!isMuted);
+    }
+  };
 
   useEffect(() => {
     if (isPlaying && timeLeft > 0) {
@@ -81,6 +90,7 @@ export default function CPSClicker() {
   return (
     <div className="relative w-full h-screen overflow-hidden">
       <video
+        ref={videoRef}
         autoPlay
         loop
         playsInline
@@ -91,6 +101,14 @@ export default function CPSClicker() {
       </video>
 
       <div className="absolute inset-0 bg-black/40" />
+      <div className="absolute top-4 right-4 z-50">
+        <Button
+          onClick={toggleMute}
+          className="game-button px-4 py-2 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-400 hover:to-red-500 text-white border-2 border-red-300 shadow-lg"
+        >
+          {isMuted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
+        </Button>
+      </div>
       <div className="absolute top-4 left-4">
         <Button
           onClick={() => navigate("/")}

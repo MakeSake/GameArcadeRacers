@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Home, RotateCcw, Trophy, Zap } from "lucide-react";
+import { Home, RotateCcw, Trophy, Zap, Volume2, VolumeX } from "lucide-react";
 import Race2D from "@/components/Race2D";
 import { detectDevice, getWinVideo } from "@/utils/deviceDetection";
 
@@ -19,6 +19,7 @@ type TrackShape = 'straight' | 'curved' | 'circle';
 
 export default function TypingRace() {
   const navigate = useNavigate();
+  const [isMuted, setIsMuted] = useState(false);
   const [targetText, setTargetText] = useState("");
   const [userInput, setUserInput] = useState("");
   const [isPlaying, setIsPlaying] = useState(false);
@@ -40,6 +41,13 @@ export default function TypingRace() {
   const [difficulty, setDifficulty] = useState<'normal' | 'hard'>('normal');
   const inputRef = useRef<HTMLInputElement>(null);
   const bgVideoRef = useRef<HTMLVideoElement>(null);
+
+  const toggleMute = () => {
+    if (bgVideoRef.current) {
+      bgVideoRef.current.volume = isMuted ? 0.8 : 0;
+      setIsMuted(!isMuted);
+    }
+  };
   const [bgVideo] = useState(() => {
     const videoIndex = Math.floor(Math.random() * 7) + 1;
     return `/videos/wide_${videoIndex}.mp4`;
@@ -197,7 +205,13 @@ export default function TypingRace() {
         </div>
       )}
 
-      <div className="absolute top-4 left-4 z-50">
+      <div className="absolute top-4 left-4 z-50 flex gap-2">
+        <Button
+          onClick={toggleMute}
+          className="game-button px-4 py-2 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-400 hover:to-red-500 text-white border-2 border-red-300 shadow-lg"
+        >
+          {isMuted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
+        </Button>
         <Button
           onClick={() => navigate("/")}
           variant="outline"

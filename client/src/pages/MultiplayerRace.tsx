@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Home, Users, Trophy } from "lucide-react";
+import { Home, Users, Trophy, Volume2, VolumeX } from "lucide-react";
 import { io, Socket } from "socket.io-client";
 import QRCodeScanner from "@/components/QRCodeScanner";
 import { getWinVideo } from "@/utils/deviceDetection";
@@ -43,11 +43,20 @@ export default function MultiplayerRace() {
   const [winnerCarIndex, setWinnerCarIndex] = useState(0);
   const [selectedTrack, setSelectedTrack] = useState<TrackType>('desert');
   const [showTrackSelect, setShowTrackSelect] = useState(false);
+  const [isMuted, setIsMuted] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
   const [bgVideo] = useState(() => {
     const videoIndex = Math.floor(Math.random() * 7) + 1;
     return `/videos/wide_${videoIndex}.mp4`;
   });
+
+  const toggleMute = () => {
+    if (videoRef.current) {
+      videoRef.current.volume = isMuted ? 0.8 : 0;
+      setIsMuted(!isMuted);
+    }
+  };
 
   useEffect(() => {
     const newSocket = io(window.location.origin, {
@@ -164,6 +173,7 @@ export default function MultiplayerRace() {
   return (
     <div className="relative w-full h-screen overflow-hidden">
       <video
+        ref={videoRef}
         autoPlay
         loop
         playsInline
@@ -174,6 +184,16 @@ export default function MultiplayerRace() {
       </video>
 
       <div className="absolute inset-0 bg-black/40" />
+      
+      <div className="absolute top-4 right-4 z-50">
+        <Button
+          onClick={toggleMute}
+          className="game-button px-4 py-2 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-400 hover:to-red-500 text-white border-2 border-red-300 shadow-lg"
+        >
+          {isMuted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
+        </Button>
+      </div>
+
       {showWinVideo && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90">
           <div className="relative w-full h-full flex items-center justify-center">
@@ -208,17 +228,17 @@ export default function MultiplayerRace() {
         </Button>
       </div>
 
-      <div className="flex flex-col items-center justify-center h-full text-white px-4">
-        <div className="text-center mb-8">
-          <h1 className="game-title mb-4">
+      <div className="flex flex-col items-center justify-start h-full text-white px-4 pt-4">
+        <div className="text-center mb-3">
+          <h1 className="game-title mb-1">
             MULTIPLAYER RACE
           </h1>
-          <p className="game-subtitle text-xl md:text-2xl drop-shadow-md">
+          <p className="game-subtitle text-sm md:text-lg drop-shadow-md">
             ⚡ RACE AGAINST OTHER PLAYERS ⚡
           </p>
         </div>
 
-        <div className="bg-white/10 backdrop-blur-md rounded-2xl p-8 md:p-12 shadow-2xl border border-white/20 mb-8 w-full max-w-4xl">
+        <div className="bg-white/10 backdrop-blur-md rounded-2xl p-6 md:p-8 shadow-2xl border border-white/20 mb-4 w-full max-w-4xl max-h-[calc(100vh-120px)] overflow-y-auto">
           {!isConnected ? (
             <div className="text-center space-y-6">
               <Users className="mx-auto h-16 w-16 text-blue-400" />

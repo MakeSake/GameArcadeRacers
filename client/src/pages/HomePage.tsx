@@ -1,18 +1,26 @@
 import { useNavigate } from "react-router-dom";
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Gamepad2, MousePointerClick, Keyboard } from "lucide-react";
+import { Gamepad2, MousePointerClick, Keyboard, Volume2, VolumeX } from "lucide-react";
 import ParticleAura from "@/components/ParticleAura";
 
 export default function HomePage() {
   const navigate = useNavigate();
   const videoRef = useRef<HTMLVideoElement>(null);
+  const [isMuted, setIsMuted] = useState(false);
 
   useEffect(() => {
     if (videoRef.current) {
       videoRef.current.volume = 0.8;
     }
   }, []);
+
+  const toggleMute = () => {
+    if (videoRef.current) {
+      videoRef.current.volume = isMuted ? 0.8 : 0;
+      setIsMuted(!isMuted);
+    }
+  };
 
   return (
     <div className="relative w-full h-screen overflow-hidden">
@@ -29,6 +37,15 @@ export default function HomePage() {
       <ParticleAura />
 
       <div className="absolute inset-0 bg-black/40" />
+
+      <div className="absolute top-4 right-4 z-50">
+        <Button
+          onClick={toggleMute}
+          className="game-button px-4 py-2 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-400 hover:to-red-500 text-white border-2 border-red-300 shadow-lg"
+        >
+          {isMuted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
+        </Button>
+      </div>
 
       <div className="relative z-10 flex flex-col items-center justify-center h-full text-white">
         <div className="text-center mb-12">
