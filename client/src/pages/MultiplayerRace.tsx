@@ -229,19 +229,18 @@ export default function MultiplayerRace() {
         </Button>
       </div>
 
-      <div className={`flex flex-col items-center ${gameState.isStarted ? 'justify-center' : 'justify-start'} h-full text-white px-2 pt-2`}>
-        {!gameState.isStarted && (
-          <div className="text-center mb-3">
-            <h1 className="game-title mb-1">
-              MULTIPLAYER RACE
-            </h1>
-            <p className="game-subtitle text-sm md:text-lg drop-shadow-md">
-              ⚡ RACE AGAINST OTHER PLAYERS ⚡
-            </p>
-          </div>
-        )}
+      <div className="flex flex-col h-full text-white">
+        <div className="text-center mb-2 pt-2">
+          <h1 className="game-title mb-1">
+            MULTIPLAYER RACE
+          </h1>
+          <p className="game-subtitle text-sm md:text-lg drop-shadow-md">
+            ⚡ RACE AGAINST OTHER PLAYERS ⚡
+          </p>
+        </div>
 
-        <div className={`bg-white/10 backdrop-blur-md rounded-lg shadow-2xl border border-white/20 ${gameState.isStarted ? 'h-screen w-screen max-w-full max-h-screen p-4' : 'w-full max-w-4xl p-6 md:p-8 mb-4'}`}>
+        <div className={`flex flex-col items-center flex-1 ${gameState.isStarted ? 'justify-center px-2' : 'justify-start px-2'}`}>
+          <div className={`bg-white/10 backdrop-blur-md rounded-lg shadow-2xl border border-white/20 ${gameState.isStarted ? 'h-full w-full max-w-full p-4' : 'w-full max-w-4xl p-6 md:p-8 mb-4'}`}>
           {!isConnected ? (
             <div className="text-center space-y-6">
               <Users className="mx-auto h-16 w-16 text-blue-400" />
@@ -407,6 +406,7 @@ export default function MultiplayerRace() {
               )}
             </>
           )}
+          </div>
         </div>
       </div>
     </div>
