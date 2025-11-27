@@ -230,7 +230,7 @@ export default function TypingRace() {
               </Button>
 
               {showTrackSelect && (
-                <div className="absolute top-12 right-20 bg-black/90 backdrop-blur rounded-lg p-3 border border-white/30 w-48 space-y-2">
+                <div className="absolute top-12 right-0 bg-black/90 backdrop-blur rounded-lg p-3 border border-white/30 w-48 max-h-64 overflow-y-auto space-y-2 z-50">
                   {(['asphalt', 'desert', 'night-city', 'mountain'] as TrackType[]).map(track => (
                     <Button
                       key={track}
@@ -238,7 +238,7 @@ export default function TypingRace() {
                         setSelectedTrack(track);
                         setShowTrackSelect(false);
                       }}
-                      className={`w-full text-left justify-start text-sm ${selectedTrack === track ? 'bg-yellow-500' : 'bg-white/10 hover:bg-white/20'}`}
+                      className={`w-full text-left justify-start text-sm ${selectedTrack === track ? 'bg-yellow-500 text-white' : 'bg-white/10 hover:bg-white/20'}`}
                     >
                       {track === 'asphalt' && '🏁 Asphalt'}
                       {track === 'desert' && '🏜️ Desert'}
@@ -250,7 +250,7 @@ export default function TypingRace() {
               )}
 
               {showShapeSelect && (
-                <div className="absolute top-12 right-0 bg-black/90 backdrop-blur rounded-lg p-3 border border-white/30 w-48 space-y-2">
+                <div className="absolute top-12 -right-48 bg-black/90 backdrop-blur rounded-lg p-3 border border-white/30 w-48 max-h-64 overflow-y-auto space-y-2 z-50">
                   {(['straight', 'curved', 'circle'] as TrackShape[]).map(shape => (
                     <Button
                       key={shape}
@@ -258,7 +258,7 @@ export default function TypingRace() {
                         setSelectedShape(shape);
                         setShowShapeSelect(false);
                       }}
-                      className={`w-full text-left justify-start text-sm ${selectedShape === shape ? 'bg-cyan-500' : 'bg-white/10 hover:bg-white/20'}`}
+                      className={`w-full text-left justify-start text-sm ${selectedShape === shape ? 'bg-cyan-500 text-white' : 'bg-white/10 hover:bg-white/20'}`}
                     >
                       {shape === 'straight' && '━━ Straight'}
                       {shape === 'curved' && '≈≈ Curved'}
