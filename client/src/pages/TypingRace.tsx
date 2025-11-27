@@ -179,13 +179,13 @@ export default function TypingRace() {
 
       <div className="flex flex-col h-full p-4 md:p-8 text-white relative z-10">
         <div className="text-center mb-6">
-          <h1 className="text-4xl md:text-6xl font-bold mb-2 drop-shadow-lg flex items-center justify-center gap-2">
-            <Zap className="text-yellow-400" />
-            TURBO RACE CHAMPIONS
-            <Zap className="text-yellow-400" />
+          <h1 className="game-title mb-2 flex items-center justify-center gap-3">
+            <Zap className="text-yellow-400 animate-bounce" />
+            TURBO CHAMPIONS
+            <Zap className="text-yellow-400 animate-bounce" />
           </h1>
-          <p className="text-lg md:text-xl drop-shadow-md text-yellow-300 font-bold">
-            🏁 TYPE FAST TO ACCELERATE! BEAT THE AI! 🏁
+          <p className="game-subtitle text-lg md:text-xl drop-shadow-md text-yellow-300">
+            🏁 TYPE FAST! BEAT THE AI! 🏁
           </p>
         </div>
 
@@ -203,7 +203,7 @@ export default function TypingRace() {
             <div className="absolute top-4 right-4 z-20">
               <Button
                 onClick={() => setShowTrackSelect(!showTrackSelect)}
-                className="bg-white/20 backdrop-blur text-white border border-white/30 hover:bg-white/30"
+                className="game-button px-6 py-2 bg-gradient-to-r from-yellow-500 to-orange-600 hover:from-yellow-400 hover:to-orange-500 text-white border-2 border-yellow-300 shadow-lg hover:shadow-yellow-400/50"
               >
                 🛣️ {selectedTrack.toUpperCase()}
               </Button>
@@ -263,7 +263,7 @@ export default function TypingRace() {
             <Button
               onClick={startGame}
               size="lg"
-              className="text-2xl py-8 px-16 bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 font-bold"
+              className="game-button text-3xl py-8 px-20 bg-gradient-to-br from-yellow-400 via-orange-500 to-red-600 hover:from-yellow-300 hover:via-orange-400 hover:to-red-500 text-white font-bold shadow-2xl hover:shadow-orange-500/50 border-2 border-yellow-200"
             >
               🏁 START RACE 🏁
             </Button>
@@ -325,7 +325,7 @@ export default function TypingRace() {
             <Button
               onClick={resetGame}
               size="lg"
-              className="text-xl py-6 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 font-bold"
+              className="game-button text-xl py-6 px-12 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 font-bold shadow-lg hover:shadow-cyan-500/50"
             >
               <RotateCcw className="mr-2 h-5 w-5" />
               RACE AGAIN
