@@ -32,9 +32,9 @@ export default function TypingRace() {
   const [accuracy, setAccuracy] = useState(100);
   const [showWinVideo, setShowWinVideo] = useState(false);
   const [winner, setWinner] = useState<'player' | 'opponent1' | 'opponent2' | null>(null);
-  const [selectedTrack, setSelectedTrack] = useState<TrackType>('asphalt');
+  const [selectedTrack, setSelectedTrack] = useState<TrackType>('desert');
   const [showTrackSelect, setShowTrackSelect] = useState(false);
-  const [selectedShape, setSelectedShape] = useState<TrackShape>('straight');
+  const [selectedShape, setSelectedShape] = useState<TrackShape>('curved');
   const [showShapeSelect, setShowShapeSelect] = useState(false);
   const [device, setDevice] = useState(detectDevice());
   const [difficulty, setDifficulty] = useState<'normal' | 'hard'>('normal');
@@ -260,7 +260,7 @@ export default function TypingRace() {
 
               {showTrackSelect && (
                 <div className="absolute top-12 right-0 bg-black/90 backdrop-blur rounded-lg p-3 border border-white/30 w-48 max-h-64 overflow-y-auto space-y-2 z-50">
-                  {(['asphalt', 'desert', 'night-city', 'mountain'] as TrackType[]).map(track => (
+                  {(['desert', 'night-city', 'mountain'] as TrackType[]).map(track => (
                     <Button
                       key={track}
                       onClick={() => {
@@ -269,7 +269,6 @@ export default function TypingRace() {
                       }}
                       className={`w-full text-left justify-start text-sm ${selectedTrack === track ? 'bg-yellow-500 text-white' : 'bg-white/10 hover:bg-white/20'}`}
                     >
-                      {track === 'asphalt' && '🏁 Asphalt'}
                       {track === 'desert' && '🏜️ Desert'}
                       {track === 'night-city' && '🌃 Night City'}
                       {track === 'mountain' && '⛰️ Mountain'}
@@ -280,7 +279,7 @@ export default function TypingRace() {
 
               {showShapeSelect && (
                 <div className="absolute top-12 -right-48 bg-black/90 backdrop-blur rounded-lg p-3 border border-white/30 w-48 max-h-64 overflow-y-auto space-y-2 z-50">
-                  {(['straight', 'curved', 'circle'] as TrackShape[]).map(shape => (
+                  {(['curved', 'circle'] as TrackShape[]).map(shape => (
                     <Button
                       key={shape}
                       onClick={() => {
@@ -289,7 +288,6 @@ export default function TypingRace() {
                       }}
                       className={`w-full text-left justify-start text-sm ${selectedShape === shape ? 'bg-cyan-500 text-white' : 'bg-white/10 hover:bg-white/20'}`}
                     >
-                      {shape === 'straight' && '━━ Straight'}
                       {shape === 'curved' && '≈≈ Curved'}
                       {shape === 'circle' && '◯ Circle'}
                     </Button>
@@ -341,10 +339,10 @@ export default function TypingRace() {
         )}
 
         {isPlaying && (
-          <div className="space-y-4">
-            <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20">
-              <p className="text-lg font-mono text-gray-300 mb-2">TYPE THE TEXT TO MOVE YOUR CAR:</p>
-              <div className="bg-black/30 rounded-lg p-4 font-mono text-lg leading-relaxed mb-4">
+          <div className="space-y-2">
+            <div className="bg-white/10 backdrop-blur-md rounded-xl p-3 border border-white/20">
+              <p className="text-xs font-mono text-gray-300 mb-1">TYPE THE TEXT TO MOVE YOUR CAR:</p>
+              <div className="bg-black/30 rounded-lg p-2 font-mono text-xs leading-relaxed mb-2 max-h-20 overflow-hidden">
                 {targetText.split("").map((char, index) => {
                   let className = "text-gray-400";
                   if (index < userInput.length) {
@@ -362,11 +360,11 @@ export default function TypingRace() {
                 type="text"
                 value={userInput}
                 onChange={handleInputChange}
-                className="w-full text-lg p-4 bg-white/20 text-white placeholder-gray-400 border-2 border-yellow-400"
+                className="w-full text-xs p-2 bg-white/20 text-white placeholder-gray-400 border-2 border-yellow-400"
                 placeholder="Start typing here..."
                 autoFocus
               />
-              <div className="mt-4 flex justify-between text-sm">
+              <div className="mt-2 flex justify-between text-xs">
                 <span>Accuracy: <span className="text-green-400 font-bold">{accuracy}%</span></span>
                 <span>Progress: <span className="text-blue-400 font-bold">{Math.round(playerProgress)}%</span></span>
               </div>

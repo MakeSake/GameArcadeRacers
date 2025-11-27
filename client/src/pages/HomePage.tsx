@@ -32,10 +32,10 @@ export default function HomePage() {
 
       <div className="relative z-10 flex flex-col items-center justify-center h-full text-white">
         <div className="text-center mb-12">
-          <h1 className="game-title mb-4 text-3d-rotate">
+          <h1 className="game-title mb-4 text-3d-rotate" style={{ textShadow: '0 0 20px rgba(255, 215, 0, 0.8), 0 0 40px rgba(255, 100, 0, 0.6), 0 0 60px rgba(255, 50, 0, 0.2)' }}>
             GAME HUB
           </h1>
-          <p className="game-subtitle text-xl md:text-2xl drop-shadow-md text-3d-rotate-reverse">
+          <p className="game-subtitle text-xl md:text-2xl drop-shadow-md text-3d-rotate-reverse" style={{ textShadow: '0 0 15px rgba(255, 215, 0, 0.6), 0 0 30px rgba(255, 100, 0, 0.4)' }}>
             ⚡ CHOOSE YOUR CHALLENGE ⚡
           </p>
         </div>
