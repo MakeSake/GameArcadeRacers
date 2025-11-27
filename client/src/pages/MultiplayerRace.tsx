@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Home, Users, Trophy } from "lucide-react";
 import { io, Socket } from "socket.io-client";
+import QRCodeScanner from "@/components/QRCodeScanner";
 
 interface Player {
   id: string;
@@ -200,7 +201,7 @@ export default function MultiplayerRace() {
 
         <div className="bg-white/10 backdrop-blur-md rounded-2xl p-8 md:p-12 shadow-2xl border border-white/20 mb-8 w-full max-w-4xl">
           {!isConnected ? (
-            <div className="text-center space-y-4">
+            <div className="text-center space-y-6">
               <Users className="mx-auto h-16 w-16 text-blue-400" />
               <h2 className="text-2xl font-bold">Join the Race</h2>
               <Input
@@ -246,7 +247,8 @@ export default function MultiplayerRace() {
               </div>
 
               {!gameState.isStarted && !gameState.winner && (
-                <div className="text-center">
+                <div className="text-center space-y-4">
+                  <QRCodeScanner roomId={myPlayerId} isConnected={isConnected} />
                   <Button
                     onClick={startGame}
                     disabled={!canStart}

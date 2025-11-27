@@ -176,7 +176,7 @@ export default function CPSClicker() {
       {/* Result Modal */}
       {showResultModal && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
-          <div className="bg-gradient-to-br from-purple-900 to-pink-900 rounded-2xl p-12 border-4 border-yellow-400 shadow-2xl text-center space-y-6 max-w-md w-full mx-4 animate-bounce">
+          <div className="bg-gradient-to-br from-purple-900 to-pink-900 rounded-2xl p-8 border-4 border-yellow-400 shadow-2xl text-center space-y-4 max-w-md w-full mx-4">
             <button
               onClick={() => setShowResultModal(false)}
               className="absolute top-4 right-4 text-white hover:text-yellow-400"
@@ -184,34 +184,34 @@ export default function CPSClicker() {
               <X className="h-6 w-6" />
             </button>
             
-            <h2 className="game-title text-4xl">RESULTS!</h2>
+            <h2 className="text-3xl font-bold text-yellow-400">YOUR RESULTS</h2>
             
-            <div className="space-y-4">
-              <div className="bg-white/10 backdrop-blur rounded-xl p-6">
-                <div className="text-5xl font-bold text-yellow-400 mb-2">{cps}</div>
-                <div className="text-2xl text-white">CPS</div>
+            <div className="space-y-3">
+              <div className="bg-white/10 backdrop-blur rounded-xl p-4">
+                <div className="text-4xl font-bold text-yellow-400 mb-1">{cps}</div>
+                <div className="text-lg text-white">CPS</div>
               </div>
               
               <div className="bg-white/10 backdrop-blur rounded-xl p-4">
-                <div className="text-3xl font-bold text-cyan-400">{clicks}</div>
-                <div className="text-lg text-white">Total Clicks</div>
+                <div className="text-2xl font-bold text-cyan-400">{clicks}</div>
+                <div className="text-base text-white">Total Clicks</div>
               </div>
 
-              <div className="space-y-3 pt-4">
+              <div className="space-y-2 pt-2">
                 <Button
                   onClick={resetGame}
                   size="lg"
-                  className="game-button w-full text-2xl py-6 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-400 hover:to-emerald-400 font-bold"
+                  className="game-button w-full text-lg py-4 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-400 hover:to-emerald-400 font-bold"
                 >
-                  🔄 TRY AGAIN 🔄
+                  🔄 TRY AGAIN
                 </Button>
                 
                 <Button
                   onClick={() => navigate("/")}
                   size="lg"
-                  className="game-button w-full text-xl py-4 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-400 hover:to-cyan-400 font-bold"
+                  className="game-button w-full text-base py-3 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-400 hover:to-cyan-400 font-bold"
                 >
-                  <Home className="mr-2 h-5 w-5" />
+                  <Home className="mr-2 h-4 w-4" />
                   Home
                 </Button>
               </div>
