@@ -53,12 +53,21 @@ npm run db:push
 
 ## Development
 
-Start the development server:
+### Quick Start (Simplest Way)
+Just run:
+```bash
+npm install
+npx tsx index.ts
+```
+
+Then open your browser to: `http://localhost:5000`
+
+### Alternative: Using npm scripts
 ```bash
 npm run dev
 ```
 
-The app will run at `http://localhost:5173` (frontend) with backend at `http://localhost:3000`
+The app will run at `http://localhost:5000`
 
 ## Production Build
 
