@@ -17,6 +17,7 @@ interface Player extends GameObject {
 
 interface Obstacle extends GameObject {
   type: "spike" | "platform";
+  shapeId?: number;
 }
 
 const GRAVITY = 0.6;
@@ -68,6 +69,7 @@ export default function GravityDash() {
   const gameLoopRef = useRef<number | null>(null);
   const keysPressed = useRef<{ [key: string]: boolean }>({});
   const wasGroundedRef = useRef<boolean>(false);
+  const obstacleIdRef = useRef<number>(0);
 
   // Handle keyboard input
   useEffect(() => {
@@ -127,10 +129,12 @@ export default function GravityDash() {
     // Check obstacle collisions with stricter detection
     const obstacles = obstaclesRef.current;
     for (let obstacle of obstacles) {
+      // Add padding to reduce collision sensitivity
+      const collisionPadding = obstacle.type === "spike" ? 8 : 0;
       const isColliding = 
-        player.x < obstacle.x + obstacle.width &&
-        player.x + player.width > obstacle.x &&
-        player.y < obstacle.y + obstacle.height &&
+        player.x < obstacle.x + obstacle.width - collisionPadding &&
+        player.x + player.width > obstacle.x + collisionPadding &&
+        player.y < obstacle.y + obstacle.height - 3 &&
         player.y + player.height > obstacle.y;
 
       if (isColliding) {
@@ -179,6 +183,7 @@ export default function GravityDash() {
         width: 50,
         height: randomType === "spike" ? 30 : 20,
         type: randomType,
+        shapeId: obstacleIdRef.current++,
       });
     }
 
@@ -332,9 +337,13 @@ export default function GravityDash() {
     ctx.fillStyle = "#1a1a2e";
     ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
 
-    // Draw ground
+    // Draw ground with thick visual border
     ctx.fillStyle = "#ffd700";
-    ctx.fillRect(0, GROUND_LEVEL + 30, GAME_WIDTH, 50);
+    ctx.fillRect(0, GROUND_LEVEL + 32, GAME_WIDTH, 50);
+    
+    // Draw thick black border below for visual connection
+    ctx.fillStyle = "#000000";
+    ctx.fillRect(0, GROUND_LEVEL + 30, GAME_WIDTH, 2);
 
     // Draw player
     const player = playerRef.current;
@@ -348,9 +357,9 @@ export default function GravityDash() {
 
     // Draw obstacles
     const obstacles = obstaclesRef.current;
-    obstacles.forEach((obs, idx) => {
+    obstacles.forEach((obs) => {
       if (obs.type === "spike") {
-        drawSpike(ctx, obs.x, obs.y, obs.width, obs.height, idx);
+        drawSpike(ctx, obs.x, obs.y, obs.width, obs.height, obs.shapeId || 0);
       } else {
         // Platform - green rectangle
         ctx.fillStyle = "#00ff00";
@@ -405,10 +414,11 @@ export default function GravityDash() {
       velocityY: 0,
       isJumping: false,
     };
+    obstacleIdRef.current = 0;
     obstaclesRef.current = [
-      { x: 220, y: GROUND_LEVEL, width: 50, height: 30, type: "spike" },
-      { x: 350, y: GROUND_LEVEL - 45, width: 50, height: 20, type: "platform" },
-      { x: 480, y: GROUND_LEVEL, width: 50, height: 30, type: "spike" },
+      { x: 220, y: GROUND_LEVEL, width: 60, height: 35, type: "spike", shapeId: obstacleIdRef.current++ },
+      { x: 350, y: GROUND_LEVEL - 45, width: 60, height: 25, type: "platform", shapeId: obstacleIdRef.current++ },
+      { x: 480, y: GROUND_LEVEL, width: 60, height: 35, type: "spike", shapeId: obstacleIdRef.current++ },
     ];
     scoreRef.current = 0;
     setScore(0);
