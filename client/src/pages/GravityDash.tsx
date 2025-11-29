@@ -100,15 +100,15 @@ export default function GravityDash() {
   const updatePhysics = () => {
     const player = playerRef.current;
 
-    // Apply gravity
-    player.velocityY += GRAVITY;
-    player.y += player.velocityY;
-
-    // Ground collision - only stop if falling and not already on ground
-    if (player.y + player.height >= GROUND_LEVEL + 30 && player.velocityY > 0) {
+    // Ground collision - prevent falling through and stop bouncing
+    if (player.y >= GROUND_LEVEL && player.velocityY >= 0) {
       player.y = GROUND_LEVEL;
       player.velocityY = 0;
       player.isJumping = false;
+    } else {
+      // Only apply gravity if not on ground
+      player.velocityY += GRAVITY;
+      player.y += player.velocityY;
     }
 
     // Check obstacle collisions with stricter detection
