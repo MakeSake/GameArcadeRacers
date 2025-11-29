@@ -100,10 +100,11 @@ export default function GravityDash() {
   const updatePhysics = () => {
     const player = playerRef.current;
 
-    // Ground collision - prevent falling through and stop bouncing
+    // Ground collision - prevent falling through with slight bounce
     if (player.y >= GROUND_LEVEL && player.velocityY >= 0) {
       player.y = GROUND_LEVEL;
-      player.velocityY = 0;
+      // Add slight bounce effect for smoothness
+      player.velocityY = -1.5;
       player.isJumping = false;
     } else {
       // Only apply gravity if not on ground
@@ -133,9 +134,9 @@ export default function GravityDash() {
           const platformTop = obstacle.y;
           const platformBottom = obstacle.y + obstacle.height;
           
-          // Landing from above (falling down) - stop velocity, don't auto-jump
+          // Landing from above (falling down) - add bounce effect
           if (player.velocityY > 0) {
-            player.velocityY = 0;
+            player.velocityY = -1.5;
             player.y = platformTop - player.height;
             player.isJumping = false;
           } 
@@ -194,13 +195,31 @@ export default function GravityDash() {
     const player = playerRef.current;
     ctx.fillStyle = "#00d4ff";
     ctx.fillRect(player.x, player.y, player.width, player.height);
+    
+    // Draw black border on player bottom for visual connection
+    ctx.strokeStyle = "#000000";
+    ctx.lineWidth = 2;
+    ctx.strokeRect(player.x, player.y, player.width, player.height);
 
     // Draw obstacles
     const obstacles = obstaclesRef.current;
     obstacles.forEach((obs) => {
       ctx.fillStyle = obs.type === "spike" ? "#ff4444" : "#00ff00";
       ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
+      
+      // Add black border to obstacles for polish
+      ctx.strokeStyle = "#000000";
+      ctx.lineWidth = 2;
+      ctx.strokeRect(obs.x, obs.y, obs.width, obs.height);
     });
+    
+    // Draw black line on top of ground for visual connection
+    ctx.strokeStyle = "#000000";
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(0, GROUND_LEVEL + 30);
+    ctx.lineTo(GAME_WIDTH, GROUND_LEVEL + 30);
+    ctx.stroke();
 
     // Draw score (positioned lower to avoid overlap)
     ctx.fillStyle = "#ffd700";
