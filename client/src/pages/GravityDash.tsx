@@ -21,10 +21,10 @@ interface Obstacle extends GameObject {
 
 const GRAVITY = 0.6;
 const JUMP_STRENGTH = -12;
-const GROUND_LEVEL = 450;
-const PLAYER_SIZE = 30;
-const GAME_WIDTH = 800;
-const GAME_HEIGHT = 600;
+const GROUND_LEVEL = 338;
+const PLAYER_SIZE = 25;
+const GAME_WIDTH = 540;
+const GAME_HEIGHT = 405;
 
 export default function GravityDash() {
   const navigate = useNavigate();
@@ -107,7 +107,8 @@ export default function GravityDash() {
 
       if (isColliding) {
         if (obstacle.type === "spike") {
-          // Spike collision - game over
+          // Spike collision - clamp player and game over
+          player.y = Math.max(0, Math.min(player.y, obstacle.y - player.height));
           setGameOver(true);
           setGameActive(false);
           return;
@@ -116,11 +117,6 @@ export default function GravityDash() {
         if (obstacle.type === "platform" && player.velocityY > 0) {
           player.velocityY = JUMP_STRENGTH;
           player.y = obstacle.y - player.height;
-        } else if (obstacle.type === "platform" && player.velocityY <= 0) {
-          // Hit from below - game over
-          setGameOver(true);
-          setGameActive(false);
-          return;
         }
       }
     }
@@ -132,15 +128,15 @@ export default function GravityDash() {
       setScore(scoreRef.current);
 
       const lastObstacle = obstacles[obstacles.length - 1];
-      const newX = lastObstacle.x + 200;
+      const newX = lastObstacle.x + 150;
       const randomType = Math.random() > 0.5 ? "spike" : "platform";
-      const randomY = randomType === "spike" ? GROUND_LEVEL : GROUND_LEVEL - 60;
+      const randomY = randomType === "spike" ? GROUND_LEVEL : GROUND_LEVEL - 45;
 
       obstacles.push({
         x: newX,
         y: randomY,
-        width: 60,
-        height: 20,
+        width: 50,
+        height: 15,
         type: randomType,
       });
     }
@@ -208,7 +204,7 @@ export default function GravityDash() {
 
   const startGame = () => {
     playerRef.current = {
-      x: 50,
+      x: 40,
       y: GROUND_LEVEL,
       width: PLAYER_SIZE,
       height: PLAYER_SIZE,
@@ -216,9 +212,9 @@ export default function GravityDash() {
       isJumping: false,
     };
     obstaclesRef.current = [
-      { x: 300, y: GROUND_LEVEL, width: 60, height: 20, type: "spike" },
-      { x: 500, y: GROUND_LEVEL - 60, width: 60, height: 20, type: "platform" },
-      { x: 700, y: GROUND_LEVEL, width: 60, height: 20, type: "spike" },
+      { x: 220, y: GROUND_LEVEL, width: 50, height: 15, type: "spike" },
+      { x: 350, y: GROUND_LEVEL - 45, width: 50, height: 15, type: "platform" },
+      { x: 480, y: GROUND_LEVEL, width: 50, height: 15, type: "spike" },
     ];
     scoreRef.current = 0;
     setScore(0);
@@ -284,7 +280,21 @@ export default function GravityDash() {
         </div>
       )}
 
-      <div className="flex-1 flex items-center justify-center p-4 user-select-none">
+      <div className="flex-1 flex items-center justify-center gap-6 p-4 user-select-none">
+        {/* Instructions Panel */}
+        <div className="bg-black/80 border-4 border-cyan-400 rounded-lg p-4 text-sm user-select-none w-48">
+          <h3 className="text-cyan-400 font-bold mb-3 text-center">HOW TO PLAY</h3>
+          <ul className="space-y-2 text-xs text-gray-200">
+            <li>🎮 <span className="text-yellow-300">SPACE</span> to jump</li>
+            <li>⬆️ <span className="text-yellow-300">UP ARROW</span> to jump</li>
+            <li>🟢 Land on <span className="text-green-400">green</span> to bounce</li>
+            <li>🔴 Avoid <span className="text-red-400">red spikes</span></li>
+            <li>📈 Survive longer for higher scores</li>
+            <li className="pt-2 text-center font-bold text-yellow-300">Good Luck!</li>
+          </ul>
+        </div>
+
+        {/* Game Container */}
         <div className="bg-black/80 border-4 border-yellow-400 rounded-lg p-4 user-select-none">
           <canvas
             ref={canvasRef}
