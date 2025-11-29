@@ -89,8 +89,8 @@ export default function GravityDash() {
     player.velocityY += GRAVITY;
     player.y += player.velocityY;
 
-    // Ground collision
-    if (player.y + player.height >= GROUND_LEVEL + 30) {
+    // Ground collision - only stop if falling
+    if (player.y + player.height >= GROUND_LEVEL + 30 && player.velocityY >= 0) {
       player.y = GROUND_LEVEL;
       player.velocityY = 0;
       player.isJumping = false;
@@ -113,10 +113,22 @@ export default function GravityDash() {
           setGameActive(false);
           return;
         }
-        // Platform: bounce if landing from above with positive velocity
-        if (obstacle.type === "platform" && player.velocityY > 0) {
-          player.velocityY = JUMP_STRENGTH;
-          player.y = obstacle.y - player.height;
+        // Platform collision detection
+        if (obstacle.type === "platform") {
+          const platformTop = obstacle.y;
+          const platformBottom = obstacle.y + obstacle.height;
+          
+          // Landing from above (falling down)
+          if (player.velocityY > 0) {
+            player.velocityY = JUMP_STRENGTH;
+            player.y = platformTop - player.height;
+            player.isJumping = true;
+          } 
+          // Hitting from below (jumping up)
+          else if (player.velocityY < 0) {
+            player.velocityY = 0;
+            player.y = platformBottom;
+          }
         }
       }
     }
