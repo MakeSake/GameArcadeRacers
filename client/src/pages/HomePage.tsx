@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { useRef, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Gamepad2, MousePointerClick, Keyboard, Volume2, VolumeX } from "lucide-react";
+import { Gamepad2, MousePointerClick, Keyboard, Volume2, VolumeX, Zap } from "lucide-react";
 import ParticleAura from "@/components/ParticleAura";
 
 export default function HomePage() {
@@ -83,6 +83,15 @@ export default function HomePage() {
           >
             <Gamepad2 className="mr-4 h-7 w-7" />
             MULTIPLAYER
+          </Button>
+
+          <Button
+            size="lg"
+            onClick={() => navigate("/gravity-dash")}
+            className="game-button text-lg px-10 py-8 bg-gradient-to-br from-orange-500 via-red-600 to-red-700 hover:from-orange-400 hover:via-red-500 hover:to-red-600 shadow-2xl transform transition-all duration-300 hover:shadow-red-500/50"
+          >
+            <Zap className="mr-4 h-7 w-7" />
+            GRAVITY DASH
           </Button>
         </div>
       </div>

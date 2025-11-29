@@ -5,6 +5,7 @@ import HomePage from "./pages/HomePage";
 import CPSClicker from "./pages/CPSClicker";
 import TypingRace from "./pages/TypingRace";
 import MultiplayerRace from "./pages/MultiplayerRace";
+import GravityDash from "./pages/GravityDash";
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
         <Route path="/cps-clicker" element={<CPSClicker />} />
         <Route path="/typing-race" element={<TypingRace />} />
         <Route path="/multiplayer-race" element={<MultiplayerRace />} />
+        <Route path="/gravity-dash" element={<GravityDash />} />
       </Routes>
     </Router>
   );
