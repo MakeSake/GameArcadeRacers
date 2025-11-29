@@ -32,6 +32,7 @@ export default function GravityDash() {
   const [gameActive, setGameActive] = useState(false);
   const [score, setScore] = useState(0);
   const [gameOver, setGameOver] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   const playerRef = useRef<Player>({
     x: 50,
@@ -215,21 +216,63 @@ export default function GravityDash() {
     setGameActive(true);
   };
 
+  const toggleFullscreen = () => {
+    const container = document.querySelector("[data-fullscreen-container]");
+    if (!container) return;
+
+    if (!isFullscreen) {
+      if (container.requestFullscreen) {
+        container.requestFullscreen();
+        setIsFullscreen(true);
+      }
+    } else {
+      if (document.fullscreenElement) {
+        document.exitFullscreen();
+        setIsFullscreen(false);
+      }
+    }
+  };
+
   return (
-    <div className="w-full h-screen bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 text-white flex flex-col">
-      <div className="flex items-center justify-between p-4 bg-black/50">
-        <Button
-          onClick={() => navigate("/")}
-          variant="ghost"
-          size="sm"
-          className="text-white hover:bg-white/20"
-        >
-          <ChevronLeft className="h-4 w-4 mr-2" />
-          Home
-        </Button>
-        <h1 className="game-title text-2xl">GRAVITY DASH</h1>
-        <div />
-      </div>
+    <div 
+      data-fullscreen-container
+      className={`${isFullscreen ? 'w-screen h-screen' : 'w-full h-screen'} bg-gradient-to-b from-blue-900 via-purple-900 to-slate-900 text-white flex flex-col`}
+    >
+      {!isFullscreen && (
+        <div className="flex items-center justify-between p-4 bg-black/50">
+          <Button
+            onClick={() => navigate("/")}
+            variant="ghost"
+            size="sm"
+            className="text-white hover:bg-white/20"
+          >
+            <ChevronLeft className="h-4 w-4 mr-2" />
+            Home
+          </Button>
+          <h1 className="game-title text-lg">GRAVITY DASH</h1>
+          <Button
+            onClick={toggleFullscreen}
+            variant="ghost"
+            size="sm"
+            className="text-white hover:bg-white/20"
+          >
+            ⛶ Fullscreen
+          </Button>
+        </div>
+      )}
+
+      {isFullscreen && (
+        <div className="absolute top-4 right-4 z-50">
+          <Button
+            onClick={toggleFullscreen}
+            variant="ghost"
+            size="sm"
+            className="text-white hover:bg-white/20 bg-black/50"
+          >
+            ✕ Exit
+          </Button>
+        </div>
+      )}
 
       <div className="flex-1 flex items-center justify-center p-4">
         <div className="bg-black/80 border-4 border-yellow-400 rounded-lg p-4">
