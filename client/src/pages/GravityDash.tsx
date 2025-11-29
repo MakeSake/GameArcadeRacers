@@ -177,7 +177,7 @@ export default function GravityDash() {
         x: newX,
         y: randomY,
         width: 50,
-        height: 15,
+        height: randomType === "spike" ? 30 : 20,
         type: randomType,
       });
     }
@@ -193,88 +193,97 @@ export default function GravityDash() {
     const centerX = x + w / 2;
     const centerY = y + h / 2;
     
-    ctx.fillStyle = "#ff4444";
-    ctx.strokeStyle = "#cc0000";
-    ctx.lineWidth = 1;
+    ctx.fillStyle = "#ff3333";
+    ctx.strokeStyle = "#990000";
+    ctx.lineWidth = 2;
     
     switch(type % 10) {
       case 0: // Tall spike
         ctx.beginPath();
         ctx.moveTo(x, y + h);
-        ctx.lineTo(centerX, y);
+        ctx.lineTo(centerX, y - 5);
         ctx.lineTo(x + w, y + h);
         ctx.closePath();
         ctx.fill();
         ctx.stroke();
         break;
-      case 1: // Double spike
-        ctx.beginPath();
-        ctx.moveTo(x, y + h);
-        ctx.lineTo(x + w/2 - 2, y + h/3);
-        ctx.lineTo(x + w/2, y + h);
-        ctx.lineTo(x + w/2 + 2, y + h/3);
-        ctx.lineTo(x + w, y + h);
-        ctx.closePath();
-        ctx.fill();
-        ctx.stroke();
-        break;
-      case 2: // Zigzag spikes
-        ctx.beginPath();
-        ctx.moveTo(x, y + h);
-        ctx.lineTo(x + w/4, y);
-        ctx.lineTo(x + w/2, y + h/2);
-        ctx.lineTo(x + 3*w/4, y);
-        ctx.lineTo(x + w, y + h);
-        ctx.closePath();
-        ctx.fill();
-        ctx.stroke();
-        break;
-      case 3: // Sharp diamond
-        ctx.beginPath();
-        ctx.moveTo(centerX, y);
-        ctx.lineTo(x + w, centerY);
-        ctx.lineTo(centerX, y + h);
-        ctx.lineTo(x, centerY);
-        ctx.closePath();
-        ctx.fill();
-        ctx.stroke();
-        break;
-      case 4: // Saw blade
-        for (let i = 0; i < 4; i++) {
+      case 1: // Triple spike
+        for (let i = 0; i < 3; i++) {
+          const sx = x + (i + 1) * w / 4;
           ctx.beginPath();
-          ctx.moveTo(x + (i * w/4), y + h);
-          ctx.lineTo(x + (i * w/4) + w/8, y + h/3);
-          ctx.lineTo(x + ((i+1) * w/4), y + h);
+          ctx.moveTo(sx - 5, y + h);
+          ctx.lineTo(sx, y - 3);
+          ctx.lineTo(sx + 5, y + h);
           ctx.closePath();
           ctx.fill();
           ctx.stroke();
         }
         break;
-      case 5: // Triangle pointing right
-        ctx.beginPath();
-        ctx.moveTo(x, y);
-        ctx.lineTo(x + w, centerY);
-        ctx.lineTo(x, y + h);
-        ctx.closePath();
-        ctx.fill();
-        ctx.stroke();
-        break;
-      case 6: // Curved spikes
+      case 2: // Zigzag aggressive
         ctx.beginPath();
         ctx.moveTo(x, y + h);
-        ctx.quadraticCurveTo(x + w/4, y, centerX, y + h/2);
-        ctx.quadraticCurveTo(x + 3*w/4, y, x + w, y + h);
+        ctx.lineTo(x + w/5, y);
+        ctx.lineTo(x + 2*w/5, y + h/2);
+        ctx.lineTo(x + 3*w/5, y);
+        ctx.lineTo(x + 4*w/5, y + h/2);
+        ctx.lineTo(x + w, y);
+        ctx.lineTo(x + w - 3, y + h);
         ctx.closePath();
         ctx.fill();
         ctx.stroke();
         break;
-      case 7: // Star shape
-        ctx.beginPath();
+      case 3: // Double sharp diamonds
+        for (let i = 0; i < 2; i++) {
+          const dx = x + (i + 0.5) * w / 2;
+          const dy = y + h / 2;
+          ctx.beginPath();
+          ctx.moveTo(dx, y - 3);
+          ctx.lineTo(dx + w/5, dy);
+          ctx.lineTo(dx, y + h + 3);
+          ctx.lineTo(dx - w/5, dy);
+          ctx.closePath();
+          ctx.fill();
+          ctx.stroke();
+        }
+        break;
+      case 4: // Multiple saw blades
         for (let i = 0; i < 5; i++) {
-          const angle = (i * 4 * Math.PI) / 5;
-          const radius = i % 2 === 0 ? h/2 : h/4;
+          ctx.beginPath();
+          ctx.moveTo(x + (i * w/5), y + h);
+          ctx.lineTo(x + (i * w/5) + w/10, y);
+          ctx.lineTo(x + ((i+1) * w/5), y + h);
+          ctx.closePath();
+          ctx.fill();
+          ctx.stroke();
+        }
+        break;
+      case 5: // Large triangle spike pointing up
+        ctx.beginPath();
+        ctx.moveTo(x - 5, y + h);
+        ctx.lineTo(centerX, y - 8);
+        ctx.lineTo(x + w + 5, y + h);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+        break;
+      case 6: // Wave spike
+        ctx.beginPath();
+        ctx.moveTo(x, y + h);
+        for (let i = 0; i <= w; i += 5) {
+          ctx.lineTo(x + i, y + (i % 10 === 0 ? 0 : h/2));
+        }
+        ctx.lineTo(x + w, y + h);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+        break;
+      case 7: // Star spike (6 point)
+        ctx.beginPath();
+        for (let i = 0; i < 12; i++) {
+          const angle = (i * Math.PI) / 6;
+          const radius = i % 2 === 0 ? h/2 + 5 : h/4;
           const px = centerX + Math.cos(angle) * radius;
-          const py = centerY + Math.sin(angle) * radius;
+          const py = centerY + Math.sin(angle) * radius + h/2;
           if (i === 0) ctx.moveTo(px, py);
           else ctx.lineTo(px, py);
         }
@@ -282,32 +291,26 @@ export default function GravityDash() {
         ctx.fill();
         ctx.stroke();
         break;
-      case 8: // Spiky circle
-        ctx.beginPath();
-        ctx.arc(centerX, centerY, h/3, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.stroke();
-        for (let i = 0; i < 8; i++) {
-          const angle = (i * Math.PI * 2) / 8;
-          const spikeX = centerX + Math.cos(angle) * h/2;
-          const spikeY = centerY + Math.sin(angle) * h/2;
+      case 8: // Hedgehog spikes
+        ctx.fillRect(x, y + h/2, w, h/2);
+        ctx.strokeRect(x, y + h/2, w, h/2);
+        for (let i = 0; i < 6; i++) {
+          const angle = (i * Math.PI) / 3;
+          const spikeX = centerX + Math.cos(angle) * (h/2 + 3);
+          const spikeY = centerY + h/4 + Math.sin(angle) * (h/2 + 3);
           ctx.beginPath();
-          ctx.moveTo(centerX, centerY);
+          ctx.moveTo(centerX, centerY + h/4);
           ctx.lineTo(spikeX, spikeY);
           ctx.stroke();
         }
         break;
-      case 9: // Jagged rectangle
-        ctx.fillRect(x, y, w, h);
-        ctx.strokeRect(x, y, w, h);
-        for (let i = 0; i < w; i += 4) {
+      case 9: // Spiky bar
+        ctx.fillRect(x, y + h - 5, w, 5);
+        ctx.strokeRect(x, y + h - 5, w, 5);
+        for (let i = 1; i < 4; i++) {
           ctx.beginPath();
-          ctx.moveTo(x + i, y);
-          ctx.lineTo(x + i + 2, y - 2);
-          ctx.stroke();
-          ctx.beginPath();
-          ctx.moveTo(x + i, y + h);
-          ctx.lineTo(x + i + 2, y + h + 2);
+          ctx.moveTo(x + (i * w/4), y + h - 5);
+          ctx.lineTo(x + (i * w/4), y - 3);
           ctx.stroke();
         }
         break;
@@ -403,9 +406,9 @@ export default function GravityDash() {
       isJumping: false,
     };
     obstaclesRef.current = [
-      { x: 220, y: GROUND_LEVEL, width: 50, height: 15, type: "spike" },
-      { x: 350, y: GROUND_LEVEL - 45, width: 50, height: 15, type: "platform" },
-      { x: 480, y: GROUND_LEVEL, width: 50, height: 15, type: "spike" },
+      { x: 220, y: GROUND_LEVEL, width: 50, height: 30, type: "spike" },
+      { x: 350, y: GROUND_LEVEL - 45, width: 50, height: 20, type: "platform" },
+      { x: 480, y: GROUND_LEVEL, width: 50, height: 30, type: "spike" },
     ];
     scoreRef.current = 0;
     setScore(0);
@@ -413,19 +416,23 @@ export default function GravityDash() {
     setGameActive(true);
   };
 
-  const toggleFullscreen = () => {
+  const toggleFullscreen = async () => {
     const container = document.querySelector("[data-fullscreen-container]");
     if (!container) return;
 
     if (!isFullscreen) {
-      if (container.requestFullscreen) {
-        container.requestFullscreen();
+      try {
+        await container.requestFullscreen();
         setIsFullscreen(true);
+      } catch (e) {
+        console.error("Fullscreen request failed:", e);
       }
     } else {
-      if (document.fullscreenElement) {
-        document.exitFullscreen();
+      try {
+        await document.exitFullscreen();
         setIsFullscreen(false);
+      } catch (e) {
+        console.error("Exit fullscreen failed:", e);
       }
     }
   };
@@ -460,7 +467,7 @@ export default function GravityDash() {
               <ChevronLeft className="h-4 w-4 mr-2" />
               Home
             </Button>
-            <h1 className="game-title text-xs">GRAVITY DASH</h1>
+            <h1 className="game-title" style={{ fontSize: '8px' }}>GRAVITY DASH</h1>
             <div className="flex gap-2">
               <Button
                 onClick={toggleMute}
