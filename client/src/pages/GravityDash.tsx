@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, Volume2, VolumeX } from "lucide-react";
 
 interface GameObject {
   x: number;
@@ -29,10 +29,25 @@ const GAME_HEIGHT = 405;
 export default function GravityDash() {
   const navigate = useNavigate();
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
   const [gameActive, setGameActive] = useState(false);
   const [score, setScore] = useState(0);
   const [gameOver, setGameOver] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isMuted, setIsMuted] = useState(false);
+
+  useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.volume = 0.8;
+    }
+  }, []);
+
+  const toggleMute = () => {
+    if (videoRef.current) {
+      videoRef.current.volume = isMuted ? 0.8 : 0;
+      setIsMuted(!isMuted);
+    }
+  };
 
   const playerRef = useRef<Player>({
     x: 50,
@@ -89,8 +104,8 @@ export default function GravityDash() {
     player.velocityY += GRAVITY;
     player.y += player.velocityY;
 
-    // Ground collision - only stop if falling
-    if (player.y + player.height >= GROUND_LEVEL + 30 && player.velocityY >= 0) {
+    // Ground collision - only stop if falling and not already on ground
+    if (player.y + player.height >= GROUND_LEVEL + 30 && player.velocityY > 0) {
       player.y = GROUND_LEVEL;
       player.velocityY = 0;
       player.isJumping = false;
@@ -118,11 +133,11 @@ export default function GravityDash() {
           const platformTop = obstacle.y;
           const platformBottom = obstacle.y + obstacle.height;
           
-          // Landing from above (falling down)
+          // Landing from above (falling down) - stop velocity, don't auto-jump
           if (player.velocityY > 0) {
-            player.velocityY = JUMP_STRENGTH;
+            player.velocityY = 0;
             player.y = platformTop - player.height;
-            player.isJumping = true;
+            player.isJumping = false;
           } 
           // Hitting from below (jumping up)
           else if (player.velocityY < 0) {
@@ -189,7 +204,7 @@ export default function GravityDash() {
 
     // Draw score (positioned lower to avoid overlap)
     ctx.fillStyle = "#ffd700";
-    ctx.font = "18px Orbitron";
+    ctx.font = "12px Orbitron";
     ctx.fillText(`Score: ${scoreRef.current}`, 20, GAME_HEIGHT - 20);
   };
 
@@ -254,45 +269,78 @@ export default function GravityDash() {
   return (
     <div 
       data-fullscreen-container
-      className={`${isFullscreen ? 'w-screen h-screen' : 'w-full h-screen'} bg-gradient-to-b from-blue-900 via-purple-900 to-slate-900 text-white flex flex-col user-select-none`}
+      className={`relative ${isFullscreen ? 'w-screen h-screen' : 'w-full h-screen'} text-white flex flex-col user-select-none overflow-hidden`}
     >
-      {!isFullscreen && (
-        <div className="flex items-center justify-between p-4 bg-black/50 user-select-none">
-          <Button
-            onClick={() => navigate("/")}
-            variant="ghost"
-            size="sm"
-            className="text-white hover:bg-white/20 user-select-none"
-          >
-            <ChevronLeft className="h-4 w-4 mr-2" />
-            Home
-          </Button>
-          <h1 className="game-title text-xs">GRAVITY DASH</h1>
-          <Button
-            onClick={toggleFullscreen}
-            variant="ghost"
-            size="sm"
-            className="text-white hover:bg-white/20 user-select-none"
-          >
-            ⛶ Fullscreen
-          </Button>
-        </div>
-      )}
+      {/* Background Video */}
+      <video
+        ref={videoRef}
+        autoPlay
+        loop
+        playsInline
+        className="absolute top-0 left-0 w-full h-full object-cover"
+      >
+        <source src="/videos/background.mp4" type="video/mp4" />
+      </video>
 
-      {isFullscreen && (
-        <div className="absolute top-4 right-4 z-50">
-          <Button
-            onClick={toggleFullscreen}
-            variant="ghost"
-            size="sm"
-            className="text-white hover:bg-white/20 bg-black/50 user-select-none"
-          >
-            ✕ Exit
-          </Button>
-        </div>
-      )}
+      {/* Overlay */}
+      <div className="absolute inset-0 bg-black/40 z-0" />
+      <div className="relative z-10">
+        {!isFullscreen && (
+          <div className="flex items-center justify-between p-4 bg-black/50 user-select-none">
+            <Button
+              onClick={() => navigate("/")}
+              variant="ghost"
+              size="sm"
+              className="text-white hover:bg-white/20 user-select-none"
+            >
+              <ChevronLeft className="h-4 w-4 mr-2" />
+              Home
+            </Button>
+            <h1 className="game-title text-xs">GRAVITY DASH</h1>
+            <div className="flex gap-2">
+              <Button
+                onClick={toggleMute}
+                variant="ghost"
+                size="sm"
+                className="text-white hover:bg-white/20 user-select-none"
+              >
+                {isMuted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+              </Button>
+              <Button
+                onClick={toggleFullscreen}
+                variant="ghost"
+                size="sm"
+                className="text-white hover:bg-white/20 user-select-none"
+              >
+                ⛶ Fullscreen
+              </Button>
+            </div>
+          </div>
+        )}
 
-      <div className="flex-1 flex items-center justify-center gap-6 p-4 user-select-none">
+        {isFullscreen && (
+          <div className="absolute top-4 right-4 z-50 flex gap-2">
+            <Button
+              onClick={toggleMute}
+              variant="ghost"
+              size="sm"
+              className="text-white hover:bg-white/20 bg-black/50 user-select-none"
+            >
+              {isMuted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+            </Button>
+            <Button
+              onClick={toggleFullscreen}
+              variant="ghost"
+              size="sm"
+              className="text-white hover:bg-white/20 bg-black/50 user-select-none"
+            >
+              ✕ Exit
+            </Button>
+          </div>
+        )}
+      </div>
+
+      <div className="relative z-10 flex-1 flex items-center justify-center gap-6 p-4 user-select-none">
         {/* Instructions Panel */}
         <div className="bg-black/80 border-4 border-cyan-400 rounded-lg p-4 text-sm user-select-none w-48">
           <h3 className="text-cyan-400 font-bold mb-3 text-center">HOW TO PLAY</h3>
