@@ -96,24 +96,31 @@ export default function GravityDash() {
       player.isJumping = false;
     }
 
-    // Check obstacle collisions
+    // Check obstacle collisions with stricter detection
     const obstacles = obstaclesRef.current;
     for (let obstacle of obstacles) {
-      if (
+      const isColliding = 
         player.x < obstacle.x + obstacle.width &&
         player.x + player.width > obstacle.x &&
         player.y < obstacle.y + obstacle.height &&
-        player.y + player.height > obstacle.y
-      ) {
+        player.y + player.height > obstacle.y;
+
+      if (isColliding) {
         if (obstacle.type === "spike") {
+          // Spike collision - game over
           setGameOver(true);
           setGameActive(false);
           return;
         }
-        // Platform: bounce if landing from above
+        // Platform: bounce if landing from above with positive velocity
         if (obstacle.type === "platform" && player.velocityY > 0) {
           player.velocityY = JUMP_STRENGTH;
           player.y = obstacle.y - player.height;
+        } else if (obstacle.type === "platform" && player.velocityY <= 0) {
+          // Hit from below - game over
+          setGameOver(true);
+          setGameActive(false);
+          return;
         }
       }
     }
@@ -172,10 +179,10 @@ export default function GravityDash() {
       ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
     });
 
-    // Draw score
+    // Draw score (positioned lower to avoid overlap)
     ctx.fillStyle = "#ffd700";
-    ctx.font = "20px Orbitron";
-    ctx.fillText(`Score: ${scoreRef.current}`, 20, 40);
+    ctx.font = "18px Orbitron";
+    ctx.fillText(`Score: ${scoreRef.current}`, 20, GAME_HEIGHT - 20);
   };
 
   // Game loop
