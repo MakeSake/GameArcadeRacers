@@ -67,6 +67,7 @@ export default function GravityDash() {
   const scoreRef = useRef<number>(0);
   const gameLoopRef = useRef<number | null>(null);
   const keysPressed = useRef<{ [key: string]: boolean }>({});
+  const wasGroundedRef = useRef<boolean>(false);
 
   // Handle keyboard input
   useEffect(() => {
@@ -99,17 +100,28 @@ export default function GravityDash() {
   // Physics and collision detection
   const updatePhysics = () => {
     const player = playerRef.current;
-
-    // Ground collision - prevent falling through with slight bounce
-    if (player.y >= GROUND_LEVEL && player.velocityY >= 0) {
+    
+    // Check if currently grounded
+    const isGrounded = player.y >= GROUND_LEVEL && player.velocityY >= 0;
+    
+    if (isGrounded) {
+      // Keep player at exact ground level
       player.y = GROUND_LEVEL;
-      // Add slight bounce effect for smoothness
-      player.velocityY = -1.5;
+      
+      // Only bounce once when just landing (transition from air to ground)
+      if (!wasGroundedRef.current) {
+        player.velocityY = -0.8;  // Small bounce for smoothness
+      } else {
+        player.velocityY = 0;  // Stay grounded
+      }
+      
       player.isJumping = false;
+      wasGroundedRef.current = true;
     } else {
-      // Only apply gravity if not on ground
+      // In the air - apply gravity
       player.velocityY += GRAVITY;
       player.y += player.velocityY;
+      wasGroundedRef.current = false;
     }
 
     // Check obstacle collisions with stricter detection
@@ -134,11 +146,12 @@ export default function GravityDash() {
           const platformTop = obstacle.y;
           const platformBottom = obstacle.y + obstacle.height;
           
-          // Landing from above (falling down) - add bounce effect
+          // Landing from above (falling down)
           if (player.velocityY > 0) {
-            player.velocityY = -1.5;
             player.y = platformTop - player.height;
+            player.velocityY = -0.8;  // Small bounce
             player.isJumping = false;
+            wasGroundedRef.current = true;
           } 
           // Hitting from below (jumping up)
           else if (player.velocityY < 0) {
@@ -175,6 +188,135 @@ export default function GravityDash() {
     });
   };
 
+  // Draw spike shapes
+  const drawSpike = (ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, type: number) => {
+    const centerX = x + w / 2;
+    const centerY = y + h / 2;
+    
+    ctx.fillStyle = "#ff4444";
+    ctx.strokeStyle = "#cc0000";
+    ctx.lineWidth = 1;
+    
+    switch(type % 10) {
+      case 0: // Tall spike
+        ctx.beginPath();
+        ctx.moveTo(x, y + h);
+        ctx.lineTo(centerX, y);
+        ctx.lineTo(x + w, y + h);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+        break;
+      case 1: // Double spike
+        ctx.beginPath();
+        ctx.moveTo(x, y + h);
+        ctx.lineTo(x + w/2 - 2, y + h/3);
+        ctx.lineTo(x + w/2, y + h);
+        ctx.lineTo(x + w/2 + 2, y + h/3);
+        ctx.lineTo(x + w, y + h);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+        break;
+      case 2: // Zigzag spikes
+        ctx.beginPath();
+        ctx.moveTo(x, y + h);
+        ctx.lineTo(x + w/4, y);
+        ctx.lineTo(x + w/2, y + h/2);
+        ctx.lineTo(x + 3*w/4, y);
+        ctx.lineTo(x + w, y + h);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+        break;
+      case 3: // Sharp diamond
+        ctx.beginPath();
+        ctx.moveTo(centerX, y);
+        ctx.lineTo(x + w, centerY);
+        ctx.lineTo(centerX, y + h);
+        ctx.lineTo(x, centerY);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+        break;
+      case 4: // Saw blade
+        for (let i = 0; i < 4; i++) {
+          ctx.beginPath();
+          ctx.moveTo(x + (i * w/4), y + h);
+          ctx.lineTo(x + (i * w/4) + w/8, y + h/3);
+          ctx.lineTo(x + ((i+1) * w/4), y + h);
+          ctx.closePath();
+          ctx.fill();
+          ctx.stroke();
+        }
+        break;
+      case 5: // Triangle pointing right
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+        ctx.lineTo(x + w, centerY);
+        ctx.lineTo(x, y + h);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+        break;
+      case 6: // Curved spikes
+        ctx.beginPath();
+        ctx.moveTo(x, y + h);
+        ctx.quadraticCurveTo(x + w/4, y, centerX, y + h/2);
+        ctx.quadraticCurveTo(x + 3*w/4, y, x + w, y + h);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+        break;
+      case 7: // Star shape
+        ctx.beginPath();
+        for (let i = 0; i < 5; i++) {
+          const angle = (i * 4 * Math.PI) / 5;
+          const radius = i % 2 === 0 ? h/2 : h/4;
+          const px = centerX + Math.cos(angle) * radius;
+          const py = centerY + Math.sin(angle) * radius;
+          if (i === 0) ctx.moveTo(px, py);
+          else ctx.lineTo(px, py);
+        }
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+        break;
+      case 8: // Spiky circle
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, h/3, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+        for (let i = 0; i < 8; i++) {
+          const angle = (i * Math.PI * 2) / 8;
+          const spikeX = centerX + Math.cos(angle) * h/2;
+          const spikeY = centerY + Math.sin(angle) * h/2;
+          ctx.beginPath();
+          ctx.moveTo(centerX, centerY);
+          ctx.lineTo(spikeX, spikeY);
+          ctx.stroke();
+        }
+        break;
+      case 9: // Jagged rectangle
+        ctx.fillRect(x, y, w, h);
+        ctx.strokeRect(x, y, w, h);
+        for (let i = 0; i < w; i += 4) {
+          ctx.beginPath();
+          ctx.moveTo(x + i, y);
+          ctx.lineTo(x + i + 2, y - 2);
+          ctx.stroke();
+          ctx.beginPath();
+          ctx.moveTo(x + i, y + h);
+          ctx.lineTo(x + i + 2, y + h + 2);
+          ctx.stroke();
+        }
+        break;
+      default:
+        ctx.fillRect(x, y, w, h);
+        ctx.strokeRect(x, y, w, h);
+    }
+  };
+
   // Render game
   const render = () => {
     const canvas = canvasRef.current;
@@ -196,21 +338,24 @@ export default function GravityDash() {
     ctx.fillStyle = "#00d4ff";
     ctx.fillRect(player.x, player.y, player.width, player.height);
     
-    // Draw black border on player bottom for visual connection
+    // Draw black border on player
     ctx.strokeStyle = "#000000";
     ctx.lineWidth = 2;
     ctx.strokeRect(player.x, player.y, player.width, player.height);
 
     // Draw obstacles
     const obstacles = obstaclesRef.current;
-    obstacles.forEach((obs) => {
-      ctx.fillStyle = obs.type === "spike" ? "#ff4444" : "#00ff00";
-      ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
-      
-      // Add black border to obstacles for polish
-      ctx.strokeStyle = "#000000";
-      ctx.lineWidth = 2;
-      ctx.strokeRect(obs.x, obs.y, obs.width, obs.height);
+    obstacles.forEach((obs, idx) => {
+      if (obs.type === "spike") {
+        drawSpike(ctx, obs.x, obs.y, obs.width, obs.height, idx);
+      } else {
+        // Platform - green rectangle
+        ctx.fillStyle = "#00ff00";
+        ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
+        ctx.strokeStyle = "#000000";
+        ctx.lineWidth = 2;
+        ctx.strokeRect(obs.x, obs.y, obs.width, obs.height);
+      }
     });
     
     // Draw black line on top of ground for visual connection
