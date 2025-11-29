@@ -49,6 +49,7 @@ export default function GravityDash() {
     { x: 700, y: GROUND_LEVEL, width: 60, height: 20, type: "spike" },
   ]);
 
+  const scoreRef = useRef<number>(0);
   const gameLoopRef = useRef<number | null>(null);
   const keysPressed = useRef<{ [key: string]: boolean }>({});
 
@@ -120,7 +121,8 @@ export default function GravityDash() {
     // Remove obstacles that passed and spawn new ones
     if (obstacles.length > 0 && obstacles[0].x < -100) {
       obstacles.shift();
-      setScore((prev) => prev + 1);
+      scoreRef.current += 1;
+      setScore(scoreRef.current);
 
       const lastObstacle = obstacles[obstacles.length - 1];
       const newX = lastObstacle.x + 200;
@@ -173,7 +175,7 @@ export default function GravityDash() {
     // Draw score
     ctx.fillStyle = "#ffd700";
     ctx.font = "20px Orbitron";
-    ctx.fillText(`Score: ${score}`, 20, 40);
+    ctx.fillText(`Score: ${scoreRef.current}`, 20, 40);
   };
 
   // Game loop
@@ -211,6 +213,7 @@ export default function GravityDash() {
       { x: 500, y: GROUND_LEVEL - 60, width: 60, height: 20, type: "platform" },
       { x: 700, y: GROUND_LEVEL, width: 60, height: 20, type: "spike" },
     ];
+    scoreRef.current = 0;
     setScore(0);
     setGameOver(false);
     setGameActive(true);
@@ -236,25 +239,25 @@ export default function GravityDash() {
   return (
     <div 
       data-fullscreen-container
-      className={`${isFullscreen ? 'w-screen h-screen' : 'w-full h-screen'} bg-gradient-to-b from-blue-900 via-purple-900 to-slate-900 text-white flex flex-col`}
+      className={`${isFullscreen ? 'w-screen h-screen' : 'w-full h-screen'} bg-gradient-to-b from-blue-900 via-purple-900 to-slate-900 text-white flex flex-col user-select-none`}
     >
       {!isFullscreen && (
-        <div className="flex items-center justify-between p-4 bg-black/50">
+        <div className="flex items-center justify-between p-4 bg-black/50 user-select-none">
           <Button
             onClick={() => navigate("/")}
             variant="ghost"
             size="sm"
-            className="text-white hover:bg-white/20"
+            className="text-white hover:bg-white/20 user-select-none"
           >
             <ChevronLeft className="h-4 w-4 mr-2" />
             Home
           </Button>
-          <h1 className="game-title text-lg">GRAVITY DASH</h1>
+          <h1 className="game-title text-xs">GRAVITY DASH</h1>
           <Button
             onClick={toggleFullscreen}
             variant="ghost"
             size="sm"
-            className="text-white hover:bg-white/20"
+            className="text-white hover:bg-white/20 user-select-none"
           >
             ⛶ Fullscreen
           </Button>
@@ -267,15 +270,15 @@ export default function GravityDash() {
             onClick={toggleFullscreen}
             variant="ghost"
             size="sm"
-            className="text-white hover:bg-white/20 bg-black/50"
+            className="text-white hover:bg-white/20 bg-black/50 user-select-none"
           >
             ✕ Exit
           </Button>
         </div>
       )}
 
-      <div className="flex-1 flex items-center justify-center p-4">
-        <div className="bg-black/80 border-4 border-yellow-400 rounded-lg p-4">
+      <div className="flex-1 flex items-center justify-center p-4 user-select-none">
+        <div className="bg-black/80 border-4 border-yellow-400 rounded-lg p-4 user-select-none">
           <canvas
             ref={canvasRef}
             width={GAME_WIDTH}
@@ -284,11 +287,11 @@ export default function GravityDash() {
           />
 
           {!gameActive && !gameOver && (
-            <div className="mt-4 text-center">
-              <p className="mb-4 text-lg">Press SPACE or UP ARROW to jump</p>
+            <div className="mt-4 text-center user-select-none">
+              <p className="mb-4 text-lg user-select-none">Press SPACE or UP ARROW to jump</p>
               <Button
                 onClick={startGame}
-                className="game-button bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-300 hover:to-orange-400 text-black font-bold text-lg px-8 py-3"
+                className="game-button bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-300 hover:to-orange-400 text-black font-bold text-lg px-8 py-3 user-select-none"
               >
                 🚀 START GAME
               </Button>
@@ -296,12 +299,12 @@ export default function GravityDash() {
           )}
 
           {gameOver && (
-            <div className="mt-4 text-center">
-              <h2 className="text-3xl font-bold text-red-400 mb-2">GAME OVER!</h2>
-              <p className="text-xl mb-4">Final Score: {score}</p>
+            <div className="mt-4 text-center user-select-none">
+              <h2 className="text-3xl font-bold text-red-400 mb-2 user-select-none">GAME OVER!</h2>
+              <p className="text-xl mb-4 user-select-none">Final Score: {score}</p>
               <Button
                 onClick={startGame}
-                className="game-button bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-300 hover:to-orange-400 text-black font-bold text-lg px-8 py-3"
+                className="game-button bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-300 hover:to-orange-400 text-black font-bold text-lg px-8 py-3 user-select-none"
               >
                 🔄 TRY AGAIN
               </Button>
