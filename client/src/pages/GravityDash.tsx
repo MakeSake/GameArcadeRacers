@@ -8,9 +8,30 @@ export default function GravityDash() {
   const [isMuted, setIsMuted] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const iframeRef = useRef<HTMLIFrameElement>(null);
+  const hasUserInteractedRef = useRef(false);
 
   const toggleMute = () => {
     setIsMuted(!isMuted);
+    if (iframeRef.current?.contentWindow) {
+      try {
+        iframeRef.current.contentWindow.postMessage({ type: 'toggleMute' }, '*');
+      } catch (e) {
+        console.error('Could not send mute message to iframe');
+      }
+    }
+  };
+
+  const handleGameContainerClick = () => {
+    if (!hasUserInteractedRef.current) {
+      hasUserInteractedRef.current = true;
+      if (iframeRef.current?.contentWindow) {
+        try {
+          iframeRef.current.contentWindow.postMessage({ type: 'enableAudio' }, '*');
+        } catch (e) {
+          console.error('Could not send audio enable message to iframe');
+        }
+      }
+    }
   };
 
   const toggleFullscreen = () => {
@@ -121,12 +142,16 @@ export default function GravityDash() {
         )}
       </div>
 
-      <div className="relative z-10 flex-1 flex items-center justify-center overflow-hidden">
+      <div 
+        className="relative z-10 flex-1 flex items-center justify-center overflow-hidden"
+        onClick={handleGameContainerClick}
+      >
         <iframe
           ref={iframeRef}
           src="/gravity-dash-game.html"
           className="w-full h-full border-0"
           title="Gravity Dash Game"
+          allow="autoplay"
           style={{ 
             opacity: isMuted ? 0.7 : 1,
           }}
