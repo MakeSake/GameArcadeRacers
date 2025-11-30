@@ -148,7 +148,7 @@ export default function GravityDash() {
       >
         <iframe
           ref={iframeRef}
-          src="/index.html"
+          src="/gravity-dash.html"
           className="w-full h-full border-0"
           title="Gravity Dash Game"
           allow="autoplay"

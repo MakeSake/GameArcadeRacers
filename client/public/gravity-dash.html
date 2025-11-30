@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta http-equiv="Content-Security-Policy" content="default-src * 'self' 'unsafe-inline' 'unsafe-eval' data: blob:">
+  <title>Gravity Dash</title>
+  
+  <style>
+    /* Global and Reset Styles */
+    body {
+      color: #ffffff;
+      font-family: sans-serif;
+      overflow: hidden;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root, body.is-fullscreen {
+      background-color: #000000;
+    }
+
+    [hidden] {
+      display: none !important;
+    }
+
+    h1 {
+      font-weight: normal;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: underline;
+      cursor: pointer;
+    }
+
+    /* Screen Layouts (App, Loading, Error, Launch) */
+    #app, #loading, #error, #launch {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    .screen {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+
+    /* Progress Bar Styling */
+    .progress {
+      width: 90%;
+      max-width: 400px;
+      height: 20px;
+      background-color: #333333;
+      border-radius: 5px;
+      overflow: hidden;
+      margin: 10px 0;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background-color: #00ff66;
+      transition: width 0.3s ease;
+    }
+
+    /* Specific Screen Adjustments */
+    #loading h1, #error h1, #launch h1 {
+      margin-top: 0;
+      margin-bottom: 0.5em;
+    }
+
+    #launch {
+      cursor: pointer;
+    }
+
+    /* Fullscreen Mode Indicator */
+    body.is-fullscreen #app canvas {
+      cursor: default !important;
+    }
+  </style>
+
+  <!-- External libraries required by the application logic -->
+  <script src="https://cdn.jsdelivr.net/npm/@turbowarp/scaffolding@1.1.0/dist/scaffolding.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jszip@3.7.1/dist/jszip.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/base64-arraybuffer@1.0.1/dist/base64-arraybuffer.min.js"></script>
+</head>
+<body>
+  <div id="app" aria-hidden="true"></div>
+
+  <!-- Loading Screen -->
+  <div id="loading" class="screen">
+    <h1>Loading...</h1>
+    <div class="progress">
+      <div id="progress-fill" class="progress-fill" style="width: 0%;"></div>
+    </div>
+    <div id="progress-text">0%</div>
+  </div>
+
+  <!-- Error Screen -->
+  <div id="error" class="screen" hidden>
+    <h1>Error</h1>
+    <p id="error-text"></p>
+    <p>
+      If this is a permanent error, you may be able to view the project at 
+      <a href="https://scratch.mit.edu/projects/983949826/editor" target="_blank">
+        scratch.mit.edu/projects/983949826/editor
+      </a>
+      or the project page.
+    </p>
+  </div>
+
+  <!-- Launch Screen (for when auto-start is disabled) -->
+  <div id="launch" class="screen" hidden tabindex="0">
+    <h1>Gravity Dash</h1>
+    <p>
+      <small>Click to Start</small>
+    </p>
+  </div>
+
+  <script>
+    /**
+     * Main application logic, project data loading, and event handling.
+     * This file contains the large base64-encoded project data and the core functions
+     * for initializing the application using the Scaffolding library.
+     */
+
+    // --- GLOBAL VARIABLES AND CONSTANTS ---
+
+    // The base64-encoded, compressed project buffer.
+    let projectDecodeBuffer = Scaffolding.base64ToArrayBuffer("H4sICCC8K2BkAAALAGFwcGVsL3NlcnZlci90aW1lX3ZhbHVlX2Jhc2ljX3Byb3RvLmRhdgCSv2lFzswvLVJIT8sEAL/6968KAAA=\n");
+    const projectDataFormat = 'zip';
+
+    // Elements
+    const app = document.getElementById('app');
+    const loadingScreen = document.getElementById('loading');
+    const errorScreen = document.getElementById('error');
+    const launchScreen = document.getElementById('launch');
+    const errorText = document.getElementById('error-text');
+    const progressText = document.getElementById('progress-text');
+    const progressFill = document.getElementById('progress-fill');
+
+    let zip;
+    let assetPromiseMap = new Map();
+    let currentProgress = 0;
+
+    // --- UTILITY FUNCTIONS ---
+
+    /**
+     * Finds a file inside the loaded JSZip object.
+     * @param {string} path The file path to search for.
+     * @returns {Scaffolding.JSZip.JSZipObject | undefined} The file object or undefined.
+     */
+    const findFileInZip = (path) => {
+      if (!zip) return undefined;
+      return zip.file(path);
+    };
+
+    /**
+     * Sets the loading progress for the UI.
+     * @param {number} progress A value between 0 and 1.
+     */
+    const setProgress = (progress) => {
+      currentProgress = progress;
+      const percent = Math.round(progress * 100);
+      progressText.textContent = `${percent}%`;
+      progressFill.style.width = `${percent}%`;
+    };
+
+    /**
+     * Handles errors by displaying the error screen.
+     * @param {string | Error} message The error message or object.
+     */
+    const errorHandler = (message) => {
+      console.error(message);
+      loadingScreen.hidden = true;
+      launchScreen.hidden = true;
+      errorScreen.hidden = false;
+      errorText.textContent = message instanceof Error ? message.stack || message.message : String(message);
+    };
+
+    // --- PROJECT DATA AND ASSET LOADING ---
+
+    /**
+     * Retrieves a project asset from the zip or fetches it dynamically.
+     * @param {string} assetType The type of asset (e.g., 'sound', 'image').
+     * @param {string} dataFormat The format of the data (e.g., 'svg', 'png', 'wav').
+     * @param {string} assetId The unique ID of the asset.
+     * @returns {Promise<Uint8Array | null>} The asset data.
+     */
+    const getProjectAsset = (assetType, dataFormat, assetId) => {
+      const mapKey = `${assetType}-${assetId}`;
+      if (assetPromiseMap.has(mapKey)) {
+        return assetPromiseMap.get(mapKey);
+      }
+
+      const promise = Promise.resolve().then(() => {
+        if (!zip) {
+          console.error('getProjectAsset called before project data was loaded or has been closed');
+          return null;
+        }
+        
+        const path = assetId + '.' + dataFormat;
+        const file = findFileInZip(path);
+        
+        if (!file) {
+          console.error('Asset is not in zip: ' + path);
+          return null;
+        }
+        
+        return file
+          .async('uint8array')
+          .then((data) => Scaffolding.storage.createAsset(assetType, dataFormat, data, assetId));
+      });
+
+      assetPromiseMap.set(mapKey, promise);
+      return promise;
+    };
+
+    /**
+     * Core function to load the main project data (project.json).
+     * @returns {Promise<ArrayBuffer>} The project.json data as an ArrayBuffer.
+     */
+    const getProjectData = () => {
+      return (async () => {
+        const buffer = projectDecodeBuffer;
+        projectDecodeBuffer = null;
+        
+        return new Uint8Array(buffer); 
+      })().then(async (data) => {
+        zip = await Scaffolding.JSZip.loadAsync(data);
+        
+        const file = findFileInZip('project.json');
+        if (!file) {
+          throw new Error('project.json is not in zip');
+        }
+        
+        return file.async('arraybuffer');
+      });
+    };
+
+    // --- MAIN APPLICATION RUNNER ---
+
+    /**
+     * Main function to start the application after resources are loaded.
+     */
+    const run = async () => {
+      try {
+        Scaffolding.storage.setGetProjectAsset(getProjectAsset);
+        Scaffolding.runtime.setGetProjectData(getProjectData);
+        
+        Scaffolding.vm.setTurboMode(true);
+        Scaffolding.vm.setStageSize(480, 360);
+        
+        Scaffolding.renderer.setDOMElement(app);
+
+        const projectData = await getProjectData();
+        
+        await Scaffolding.loadProject(projectData);
+        
+        setProgress(1);
+        loadingScreen.hidden = true;
+        
+        const autoStart = true;
+        
+        if (autoStart) {
+          Scaffolding.start();
+        } else {
+          launchScreen.hidden = false;
+          launchScreen.addEventListener('click', () => {
+            launchScreen.hidden = true;
+            Scaffolding.start();
+          });
+          launchScreen.focus();
+        }
+      } catch (err) {
+        errorHandler(err);
+      }
+    };
+
+    // --- FALLBACKS AND INITIALIZATION ---
+
+    if (!window.requestAnimationFrame) {
+      window.requestAnimationFrame = (callback) => {
+        return window.setTimeout(() => callback(Date.now()), 1000 / 60);
+      };
+    }
+
+    window.addEventListener('load', run);
+
+    window.addEventListener('error', (e) => {
+      errorHandler(e.error || e.message);
+    });
+  </script>
+</body>
+</html>
